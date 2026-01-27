@@ -1,22 +1,28 @@
 "use client";
 
-import { Calendar, Filter } from "lucide-react";
+import { Calendar, Filter, Check, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function GlobalIncomeTable({
   incomes,
   auditLogs,
+  pendingRequests,
   barbers,
   currentDate,
   selectedBarberId,
 }: {
   incomes: any[];
   auditLogs: any[];
+  pendingRequests: any[];
   barbers: any[];
   currentDate: string;
   selectedBarberId?: string;
 }) {
   const router = useRouter();
+  const supabase = createClient();
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   const handleFilterChange = (key: string, value: string) => {
     const url = new URL(window.location.href);
@@ -24,12 +30,56 @@ export default function GlobalIncomeTable({
     window.location.href = url.toString();
   };
 
-  const getRecordStatus = (incomeId: string) => {
+  const handleAction = async (
+    request: any,
+    status: "APPROVED" | "REJECTED",
+  ) => {
+    setProcessingId(request.id);
+
+    try {
+      if (status === "APPROVED") {
+        if (request.action_type === "UPDATE") {
+          await supabase
+            .from("incomes")
+            .update({
+              amount: request.new_amount,
+              note: request.new_note,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", request.income_id);
+        } else if (request.action_type === "DELETE") {
+          await supabase
+            .from("incomes")
+            .update({ is_deleted: true })
+            .eq("id", request.income_id);
+        }
+      }
+
+      await supabase
+        .from("income_requests")
+        .update({
+          status,
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: (await supabase.auth.getUser()).data.user?.id,
+        })
+        .eq("id", request.id);
+
+      router.refresh();
+    } catch (err) {
+      alert("Error processing action");
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const getRecordState = (incomeId: string) => {
+    const pending = pendingRequests.find((r) => r.income_id === incomeId);
     const logs = auditLogs.filter((log) => log.income_id === incomeId);
     const hasUpdate = logs.some((l) => l.action_type === "UPDATE");
     const original = logs.find((l) => l.action_type === "CREATE")?.new_values;
 
     return {
+      pending,
       isEdited: hasUpdate,
       originalAmount: original?.amount ? Number(original.amount) : null,
     };
@@ -41,7 +91,7 @@ export default function GlobalIncomeTable({
         <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
           Income Overview
           <span className="text-xs font-normal text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-full">
-            Confirmed Data
+            Audit Safe
           </span>
         </h2>
         <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
@@ -73,34 +123,36 @@ export default function GlobalIncomeTable({
       </div>
 
       <div className="overflow-x-auto">
-        <div className="min-w-[600px]">
+        <div className="min-w-[700px]">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-zinc-50/50 text-zinc-500 text-xs uppercase tracking-wider font-bold border-b border-zinc-100">
                 <th className="px-6 py-4">Barber</th>
-                <th className="px-6 py-4">Approved Amount</th>
+                <th className="px-6 py-4">Financial State</th>
                 <th className="px-6 py-4">Audit Status</th>
                 <th className="px-6 py-4">Time</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-50">
               {incomes.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-12 text-center text-zinc-400"
                   >
-                    No sanctioned income records found.
+                    No confirmed income for this date.
                   </td>
                 </tr>
               ) : (
                 incomes.map((income) => {
-                  const status = getRecordStatus(income.id);
+                  const state = getRecordState(income.id);
+                  const isPending = !!state.pending;
 
                   return (
                     <tr
                       key={income.id}
-                      className="hover:bg-zinc-50 transition-colors"
+                      className={`hover:bg-zinc-50 transition-colors ${isPending ? "bg-amber-50/30" : ""}`}
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -114,20 +166,42 @@ export default function GlobalIncomeTable({
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="font-bold text-zinc-900">
-                            {income.amount.toFixed(2)} DH
-                          </span>
-                          {status.isEdited &&
-                            status.originalAmount !== null &&
-                            status.originalAmount !== income.amount && (
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`font-bold ${isPending && state.pending?.action_type === "DELETE" ? "line-through text-zinc-400" : "text-zinc-900"}`}
+                            >
+                              {income.amount.toFixed(2)} DH
+                            </span>
+                            {isPending &&
+                              state.pending?.action_type === "UPDATE" && (
+                                <>
+                                  <span className="text-zinc-300">→</span>
+                                  <span className="font-bold text-amber-600">
+                                    {state.pending.new_amount.toFixed(2)} DH
+                                  </span>
+                                </>
+                              )}
+                          </div>
+                          {state.originalAmount !== null &&
+                            state.originalAmount !== income.amount && (
                               <span className="text-[10px] text-zinc-400 uppercase">
-                                Initially: {status.originalAmount.toFixed(2)} DH
+                                Initially: {state.originalAmount.toFixed(2)} DH
                               </span>
                             )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {status.isEdited ? (
+                        {isPending ? (
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase animate-pulse ${
+                              state.pending?.action_type === "DELETE"
+                                ? "bg-red-100 text-red-600"
+                                : "bg-amber-100 text-amber-600"
+                            }`}
+                          >
+                            Pending {state.pending?.action_type}
+                          </span>
+                        ) : state.isEdited ? (
                           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-600 uppercase">
                             Modified & Approved
                           </span>
@@ -140,12 +214,49 @@ export default function GlobalIncomeTable({
                       <td className="px-6 py-4 text-zinc-500 text-sm whitespace-nowrap">
                         <div className="flex flex-col">
                           <span>{income.time.split(".")[0]}</span>
-                          {income.note && (
+                          {(isPending
+                            ? state.pending?.new_note
+                            : income.note) && (
                             <span className="text-[10px] text-zinc-400 italic truncate max-w-[120px]">
-                              {income.note}
+                              {isPending
+                                ? state.pending?.new_note
+                                : income.note}
                             </span>
                           )}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {isPending && (
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              disabled={processingId === state.pending?.id}
+                              onClick={() =>
+                                handleAction(state.pending, "APPROVED")
+                              }
+                              className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-all border border-emerald-200 shadow-sm flex items-center gap-1"
+                              title="Approve Change"
+                            >
+                              {processingId === state.pending?.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Check className="w-4 h-4" />
+                              )}
+                              <span className="text-[10px] font-bold">
+                                Approve
+                              </span>
+                            </button>
+                            <button
+                              disabled={processingId === state.pending?.id}
+                              onClick={() =>
+                                handleAction(state.pending, "REJECTED")
+                              }
+                              className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all border border-red-100"
+                              title="Reject Change"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
