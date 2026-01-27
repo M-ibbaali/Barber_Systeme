@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import CustomDialog from "../ui/CustomDialog";
 import { Plus, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -29,6 +30,17 @@ export default function AddIncomeForm({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const [dialog, setDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    type: "confirm" | "danger" | "warning" | "success" | "info";
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    type: "info",
+  });
 
   const {
     register,
@@ -55,7 +67,12 @@ export default function AddIncomeForm({
       reset();
       router.refresh();
     } else {
-      alert(error.message);
+      setDialog({
+        isOpen: true,
+        title: "Error",
+        description: error.message,
+        type: "danger",
+      });
     }
   };
 
@@ -148,6 +165,11 @@ export default function AddIncomeForm({
           </div>
         </div>
       )}
+
+      <CustomDialog
+        {...dialog}
+        onClose={() => setDialog((prev) => ({ ...prev, isOpen: false }))}
+      />
     </>
   );
 }

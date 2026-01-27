@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import CustomDialog from "../ui/CustomDialog";
 import { X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -30,6 +31,17 @@ export default function EditIncomeModal({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const [dialog, setDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    type: "confirm" | "danger" | "warning" | "success" | "info";
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    type: "info",
+  });
 
   const {
     register,
@@ -55,11 +67,14 @@ export default function EditIncomeModal({
       .single();
 
     if (existingPending) {
-      alert(
-        "A request is already pending for this record. Please wait for admin approval.",
-      );
+      setDialog({
+        isOpen: true,
+        title: "Request Pending",
+        description:
+          "A request is already pending for this record. Please wait for the admin to review it.",
+        type: "warning",
+      });
       setLoading(false);
-      onClose();
       return;
     }
 
@@ -80,85 +95,100 @@ export default function EditIncomeModal({
       onClose();
       router.refresh();
     } else {
-      alert(error.message);
+      setDialog({
+        isOpen: true,
+        title: "Error",
+        description: error.message,
+        type: "danger",
+      });
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white border border-zinc-200 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-6 sm:p-8 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/30">
-          <div>
-            <h2 className="text-xl font-black text-zinc-900 tracking-tight">
-              Edit Income
-            </h2>
-            <p className="text-zinc-500 text-xs font-bold mt-1 uppercase tracking-widest">
-              Update record details
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600 transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="p-6 sm:p-8 space-y-6"
-        >
-          <div className="space-y-2">
-            <label className="text-xs font-black text-zinc-400 uppercase tracking-widest">
-              Sale Amount (DH)
-            </label>
-            <input
-              {...register("amount")}
-              type="text"
-              inputMode="decimal"
-              className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-zinc-900 focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all text-2xl sm:text-3xl font-black placeholder:text-zinc-200"
-            />
-            {errors.amount && (
-              <p className="mt-1 text-xs text-red-500 font-bold flex items-center gap-1">
-                <X className="w-3 h-3" />
-                {errors.amount.message}
+    <>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="bg-white border border-zinc-200 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="p-6 sm:p-8 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/30">
+            <div>
+              <h2 className="text-xl font-black text-zinc-900 tracking-tight">
+                Edit Income
+              </h2>
+              <p className="text-zinc-500 text-xs font-bold mt-1 uppercase tracking-widest">
+                Update record details
               </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-black text-zinc-400 uppercase tracking-widest">
-              Quick Note
-            </label>
-            <input
-              {...register("note")}
-              placeholder="Haircut, Beard, etc..."
-              className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-zinc-900 focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all font-bold placeholder:text-zinc-400 text-sm sm:text-base"
-            />
-          </div>
-
-          <div className="pt-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
+            </div>
             <button
-              type="button"
               onClick={onClose}
-              className="w-full sm:flex-1 py-4 px-4 rounded-2xl font-black bg-zinc-100 text-zinc-600 hover:bg-zinc-200 transition-colors order-2 sm:order-1"
+              className="p-2 rounded-full hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600 transition-colors"
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full sm:flex-[2] py-4 px-4 rounded-2xl font-black bg-amber-500 text-white hover:bg-amber-600 transition-all flex items-center justify-center gap-2 shadow-xl shadow-amber-500/20 active:scale-[0.98] disabled:opacity-50 order-1 sm:order-2"
-            >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                "Save Changes"
-              )}
+              <X className="w-6 h-6" />
             </button>
           </div>
-        </form>
+
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="p-6 sm:p-8 space-y-6"
+          >
+            <div className="space-y-2">
+              <label className="text-xs font-black text-zinc-400 uppercase tracking-widest">
+                Sale Amount (DH)
+              </label>
+              <input
+                {...register("amount")}
+                type="text"
+                inputMode="decimal"
+                className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-zinc-900 focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all text-2xl sm:text-3xl font-black placeholder:text-zinc-200"
+              />
+              {errors.amount && (
+                <p className="mt-1 text-xs text-red-500 font-bold flex items-center gap-1">
+                  <X className="w-3 h-3" />
+                  {errors.amount.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black text-zinc-400 uppercase tracking-widest">
+                Quick Note
+              </label>
+              <input
+                {...register("note")}
+                placeholder="Haircut, Beard, etc..."
+                className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-zinc-900 focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all font-bold placeholder:text-zinc-400 text-sm sm:text-base"
+              />
+            </div>
+
+            <div className="pt-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:flex-1 py-4 px-4 rounded-2xl font-black bg-zinc-100 text-zinc-600 hover:bg-zinc-200 transition-colors order-2 sm:order-1"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full sm:flex-[2] py-4 px-4 rounded-2xl font-black bg-amber-500 text-white hover:bg-amber-600 transition-all flex items-center justify-center gap-2 shadow-xl shadow-amber-500/20 active:scale-[0.98] disabled:opacity-50 order-1 sm:order-2"
+              >
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Save Changes"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+
+      <CustomDialog
+        {...dialog}
+        onClose={() => {
+          setDialog((prev) => ({ ...prev, isOpen: false }));
+          if (dialog.type === "warning") onClose(); // Close modal if pending exists
+        }}
+      />
+    </>
   );
 }

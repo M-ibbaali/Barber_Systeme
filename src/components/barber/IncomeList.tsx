@@ -5,6 +5,7 @@ import { Trash2, Edit2, Clock, StickyNote } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import EditIncomeModal from "./EditIncomeModal";
+import CustomDialog from "../ui/CustomDialog";
 
 export default function IncomeList({
   initialIncomes,
@@ -15,16 +16,33 @@ export default function IncomeList({
   const supabase = createClient();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingIncome, setEditingIncome] = useState<any>(null);
+  const [dialog, setDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    type: "confirm" | "danger" | "warning" | "success" | "info";
+    onConfirm?: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    type: "info",
+  });
 
   const handleDelete = async (id: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this record? Reqeust will be sent to admin.",
-      )
-    )
-      return;
+    setDialog({
+      isOpen: true,
+      title: "Delete Record?",
+      description:
+        "Are you sure you want to delete this record? A request will be sent to the administrator for approval.",
+      type: "danger",
+      onConfirm: () => executeDelete(id),
+    });
+  };
 
+  const executeDelete = async (id: string) => {
     setDeletingId(id);
+    setDialog((prev) => ({ ...prev, isOpen: false }));
 
     // 1. Check if a request is already pending for this income
     const { data: existingPending } = await supabase
@@ -35,7 +53,13 @@ export default function IncomeList({
       .single();
 
     if (existingPending) {
-      alert("A request is already pending for this record.");
+      setDialog({
+        isOpen: true,
+        title: "Request Pending",
+        description:
+          "A deletion request is already pending for this record. Please wait for the admin to review it.",
+        type: "warning",
+      });
       setDeletingId(null);
       return;
     }
@@ -52,7 +76,12 @@ export default function IncomeList({
     });
 
     if (error) {
-      alert(error.message);
+      setDialog({
+        isOpen: true,
+        title: "Error",
+        description: error.message,
+        type: "danger",
+      });
       setDeletingId(null);
     } else {
       router.refresh();
@@ -126,6 +155,11 @@ export default function IncomeList({
           onClose={() => setEditingIncome(null)}
         />
       )}
+
+      <CustomDialog
+        {...dialog}
+        onClose={() => setDialog((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }
