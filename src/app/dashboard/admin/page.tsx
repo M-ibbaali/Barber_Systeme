@@ -2,28 +2,29 @@ import { createClient } from "@/lib/supabase/server";
 import AdminStats from "@/components/admin/AdminStats";
 import BarberManager from "@/components/admin/BarberManager";
 import GlobalIncomeTable from "@/components/admin/GlobalIncomeTable";
+import PendingActions from "@/components/admin/PendingActions";
 import { Users, TrendingUp, DollarSign } from "lucide-react";
 
 export default async function AdminDashboard(props: {
   searchParams: Promise<{ date?: string; barberId?: string }>;
 }) {
-  // Correctly await searchParams for Next.js 15+ compatibility
   const searchParams = await props.searchParams;
   const supabase = await createClient();
   const filterDate =
     searchParams.date || new Date().toISOString().split("T")[0];
   const filterBarberId = searchParams.barberId;
 
-  // Fetch all barbers
   const { data: barbers } = await supabase
     .from("profiles")
     .select("*")
     .eq("role", "barber");
 
+  // Fetch strict SOURCE OF TRUTH (only approved records)
   let query = supabase
     .from("incomes")
     .select("*, profiles(name)")
     .eq("date", filterDate)
+    .eq("is_deleted", false)
     .order("time", { ascending: false });
 
   if (filterBarberId) {
@@ -32,10 +33,21 @@ export default async function AdminDashboard(props: {
 
   const { data: dailyIncomes } = await query;
 
-  // Calculate statistics relative to the SELECTED date (filterDate)
-  const selectedDate = new Date(filterDate);
+  // Fetch pending requests for the queue
+  const { data: pendingRequests } = await supabase
+    .from("income_requests")
+    .select("*")
+    .eq("status", "PENDING")
+    .order("requested_at", { ascending: false });
 
-  // Start of week for the SELECTED date (Monday)
+  // Fetch audit logs
+  const { data: auditLogs } = await supabase
+    .from("income_audit_logs")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  // Calculate statistics
+  const selectedDate = new Date(filterDate);
   const day = selectedDate.getDay();
   const diff = selectedDate.getDate() - day + (day === 0 ? -6 : 1);
   const weekStart = new Date(new Date(selectedDate).setDate(diff));
@@ -46,7 +58,6 @@ export default async function AdminDashboard(props: {
   const startOfWeek = weekStart.toISOString().split("T")[0];
   const endOfWeek = weekEnd.toISOString().split("T")[0];
 
-  // Start and End of month for the SELECTED date
   const startOfMonth = new Date(
     selectedDate.getFullYear(),
     selectedDate.getMonth(),
@@ -62,36 +73,36 @@ export default async function AdminDashboard(props: {
     .toISOString()
     .split("T")[0];
 
-  // Fetch all time income per barber
-  const { data: allTimeIncomes } = await supabase
+  const { data: allStatsIncomes } = await supabase
     .from("incomes")
-    .select("barber_id, amount, date");
-
-  const barberTotals = allTimeIncomes?.reduce((acc: any, curr) => {
-    acc[curr.barber_id] = (acc[curr.barber_id] || 0) + Number(curr.amount);
-    return acc;
-  }, {});
+    .select("amount, date, barber_id")
+    .eq("is_deleted", false);
 
   const stats = {
     daily:
-      dailyIncomes?.reduce(
-        (acc: number, curr: any) => acc + Number(curr.amount),
-        0,
-      ) || 0,
+      allStatsIncomes
+        ?.filter((i: any) => i.date === filterDate)
+        .filter((i: any) => !filterBarberId || i.barber_id === filterBarberId)
+        .reduce((acc: number, curr: any) => acc + Number(curr.amount), 0) || 0,
     week:
-      allTimeIncomes
-        ?.filter((i) => i.date >= startOfWeek && i.date <= endOfWeek)
+      allStatsIncomes
+        ?.filter((i: any) => i.date >= startOfWeek && i.date <= endOfWeek)
         .reduce((acc: number, curr: any) => acc + Number(curr.amount), 0) || 0,
     month:
-      allTimeIncomes
-        ?.filter((i) => i.date >= startOfMonth && i.date <= endOfMonth)
+      allStatsIncomes
+        ?.filter((i: any) => i.date >= startOfMonth && i.date <= endOfMonth)
         .reduce((acc: number, curr: any) => acc + Number(curr.amount), 0) || 0,
     allTime:
-      allTimeIncomes?.reduce(
+      allStatsIncomes?.reduce(
         (acc: number, curr: any) => acc + Number(curr.amount),
         0,
       ) || 0,
   };
+
+  const barberTotals = allStatsIncomes?.reduce((acc: any, curr: any) => {
+    acc[curr.barber_id] = (acc[curr.barber_id] || 0) + Number(curr.amount);
+    return acc;
+  }, {});
 
   return (
     <div className="space-y-10">
@@ -137,6 +148,12 @@ export default async function AdminDashboard(props: {
         />
       </div>
 
+      {/* NEW PENDING ACTIONS QUEUE */}
+      <PendingActions
+        requests={pendingRequests || []}
+        barbers={barbers || []}
+      />
+
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
         <div className="xl:col-span-1 space-y-6">
           <BarberManager
@@ -147,6 +164,8 @@ export default async function AdminDashboard(props: {
         <div className="xl:col-span-2 overflow-hidden">
           <GlobalIncomeTable
             incomes={dailyIncomes || []}
+            auditLogs={auditLogs || []}
+            pendingRequests={pendingRequests || []}
             barbers={barbers || []}
             currentDate={filterDate}
             selectedBarberId={filterBarberId}

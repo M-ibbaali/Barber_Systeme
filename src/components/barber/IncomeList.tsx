@@ -17,10 +17,39 @@ export default function IncomeList({
   const [editingIncome, setEditingIncome] = useState<any>(null);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this record?")) return;
+    if (
+      !confirm(
+        "Are you sure you want to delete this record? Reqeust will be sent to admin.",
+      )
+    )
+      return;
 
     setDeletingId(id);
-    const { error } = await supabase.from("incomes").delete().eq("id", id);
+
+    // 1. Check if a request is already pending for this income
+    const { data: existingPending } = await supabase
+      .from("income_requests")
+      .select("id")
+      .eq("income_id", id)
+      .eq("status", "PENDING")
+      .single();
+
+    if (existingPending) {
+      alert("A request is already pending for this record.");
+      setDeletingId(null);
+      return;
+    }
+
+    const income = initialIncomes.find((i) => i.id === id);
+
+    const { error } = await supabase.from("income_requests").insert({
+      income_id: id,
+      barber_id: income.barber_id,
+      action_type: "DELETE",
+      old_amount: income.amount,
+      old_note: income.note,
+      status: "PENDING",
+    });
 
     if (error) {
       alert(error.message);
@@ -51,21 +80,23 @@ export default function IncomeList({
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-1">
-                <span className="text-2xl font-bold text-zinc-900">
-                  {Number(income.amount).toFixed(2)} DH
-                </span>
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">
-                  <Clock className="w-3 h-3" />
-                  {formatTime(income.time)}
-                </span>
-              </div>
-              {income.note && (
-                <div className="flex items-start gap-2 text-zinc-500 text-sm">
-                  <StickyNote className="w-4 h-4 mt-0.5 shrink-0 text-zinc-300" />
-                  <p className="truncate italic">{income.note}</p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-2xl font-bold text-zinc-900">
+                    {Number(income.amount).toFixed(2)} DH
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded">
+                    <Clock className="w-3 h-3" />
+                    {formatTime(income.time)}
+                  </span>
                 </div>
-              )}
+                {income.note && (
+                  <div className="flex items-start gap-2 text-zinc-500 text-sm">
+                    <StickyNote className="w-4 h-4 mt-0.5 shrink-0 text-zinc-300" />
+                    <p className="truncate italic">{income.note}</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-2">

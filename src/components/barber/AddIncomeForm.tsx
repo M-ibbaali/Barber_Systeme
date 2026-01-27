@@ -63,9 +63,9 @@ export default function AddIncomeForm({
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-6 py-3.5 bg-zinc-900 hover:bg-zinc-800 text-white font-black rounded-2xl transition-all shadow-xl shadow-zinc-900/10 active:scale-95 flex-shrink-0"
+        className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white font-bold rounded-xl transition-all shadow-sm active:scale-95 flex-shrink-0 text-sm"
       >
-        <Plus className="w-5 h-5" />
+        <Plus className="w-4 h-4" />
         Add Record
       </button>
 

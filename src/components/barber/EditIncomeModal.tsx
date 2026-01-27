@@ -46,13 +46,34 @@ export default function EditIncomeModal({
   const onSubmit = async (data: IncomeFormValues) => {
     setLoading(true);
 
-    const { error } = await supabase
-      .from("incomes")
-      .update({
-        amount: Number(data.amount),
-        note: data.note || null,
-      })
-      .eq("id", income.id);
+    // 1. Check if a request is already pending for this income
+    const { data: existingPending } = await supabase
+      .from("income_requests")
+      .select("id")
+      .eq("income_id", income.id)
+      .eq("status", "PENDING")
+      .single();
+
+    if (existingPending) {
+      alert(
+        "A request is already pending for this record. Please wait for admin approval.",
+      );
+      setLoading(false);
+      onClose();
+      return;
+    }
+
+    // 2. Insert the request
+    const { error } = await supabase.from("income_requests").insert({
+      income_id: income.id,
+      barber_id: income.barber_id,
+      action_type: "UPDATE",
+      old_amount: income.amount,
+      new_amount: Number(data.amount),
+      old_note: income.note,
+      new_note: data.note || null,
+      status: "PENDING",
+    });
 
     setLoading(false);
     if (!error) {
