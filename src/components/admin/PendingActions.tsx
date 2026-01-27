@@ -91,6 +91,36 @@ export default function PendingActions({
                   >
                     {req.action_type}
                   </span>
+                  <span className="flex items-center gap-1 text-[10px] font-medium text-zinc-400 bg-zinc-50 px-2 py-0.5 rounded-full border border-zinc-100/50">
+                    <Clock className="w-3 h-3" />
+                    {(() => {
+                      const rawDate = req.created_at || req.requested_at;
+                      if (!rawDate) return "Just now";
+
+                      try {
+                        const date = new Date(
+                          new Date(rawDate).getTime() + 60 * 60 * 1000,
+                        );
+                        if (isNaN(date.getTime())) return "Recent";
+
+                        return (
+                          <>
+                            {date.toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}{" "}
+                            •{" "}
+                            {date.toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </>
+                        );
+                      } catch (e) {
+                        return "Just now";
+                      }
+                    })()}
+                  </span>
                 </div>
 
                 <div className="text-sm text-zinc-500">

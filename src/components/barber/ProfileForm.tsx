@@ -11,6 +11,8 @@ export default function ProfilePage({ profile }: { profile: any }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || "");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
   const router = useRouter();
@@ -20,19 +22,43 @@ export default function ProfilePage({ profile }: { profile: any }) {
     setLoading(true);
     setSuccess(false);
 
-    const { error } = await supabase
+    // 1. Update Profile Data
+    const { error: profileError } = await supabase
       .from("profiles")
       .update({ name, avatar_url: avatarUrl })
       .eq("id", profile.id);
 
-    setLoading(false);
-    if (!error) {
-      setSuccess(true);
-      router.refresh();
-      setTimeout(() => setSuccess(false), 3000);
-    } else {
-      alert(error.message);
+    if (profileError) {
+      alert(profileError.message);
+      setLoading(false);
+      return;
     }
+
+    // 2. Update Password if provided
+    if (password) {
+      if (password !== confirmPassword) {
+        alert("Passwords do not match!");
+        setLoading(false);
+        return;
+      }
+
+      const { error: passwordError } = await supabase.auth.updateUser({
+        password: password,
+      });
+
+      if (passwordError) {
+        alert(passwordError.message);
+        setLoading(false);
+        return;
+      }
+    }
+
+    setLoading(false);
+    setSuccess(true);
+    setPassword("");
+    setConfirmPassword("");
+    router.refresh();
+    setTimeout(() => setSuccess(false), 3000);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,8 +84,23 @@ export default function ProfilePage({ profile }: { profile: any }) {
       data: { publicUrl },
     } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
+    // Immediate save to profile
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ avatar_url: publicUrl })
+      .eq("id", profile.id);
+
+    if (updateError) {
+      alert("Failed to save profile photo: " + updateError.message);
+      setLoading(false);
+      return;
+    }
+
     setAvatarUrl(publicUrl);
     setLoading(false);
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 3000);
+    router.refresh();
   };
 
   return (
@@ -80,27 +121,31 @@ export default function ProfilePage({ profile }: { profile: any }) {
 
       <div className="bg-white rounded-3xl border border-zinc-200 shadow-xl shadow-zinc-200/50 overflow-hidden">
         <div className="h-32 bg-gradient-to-r from-amber-400 to-amber-600 relative">
-          <div className="absolute -bottom-12 left-8">
+          <div className="absolute  left-8 mt-5">
             <div className="relative group">
-              <div className="w-24 h-24 rounded-2xl bg-white p-1 shadow-2xl overflow-hidden">
+              <div className="w-24 h-24 rounded-2xl bg-white p-1 shadow-2xl overflow-hidden ring-4 ring-white/50">
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
                     alt="Profile"
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover rounded-xl bg-zinc-100"
                   />
                 ) : (
-                  <div className="w-full h-full bg-zinc-100 flex items-center justify-center rounded-xl">
-                    <User className="w-10 h-10 text-zinc-300" />
+                  <div className="w-full h-full bg-zinc-100 flex items-center justify-center rounded-xl border-2 border-zinc-100 border-dashed">
+                    <User className="w-8 h-8 text-zinc-300" />
                   </div>
                 )}
               </div>
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={loading}
-                className="absolute -right-3 -bottom-3 p-2.5 rounded-xl bg-zinc-900 text-white shadow-xl hover:scale-110 active:scale-95 transition-all disabled:opacity-50"
+                className="absolute -right-3 -bottom-3 p-2.5 rounded-xl bg-zinc-900 text-white shadow-xl hover:scale-110 active:scale-95 transition-all disabled:opacity-50 ring-4 ring-white"
               >
-                <Camera className="w-4 h-4" />
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Camera className="w-4 h-4" />
+                )}
               </button>
               <input
                 ref={fileInputRef}
@@ -113,7 +158,7 @@ export default function ProfilePage({ profile }: { profile: any }) {
           </div>
         </div>
 
-        <div className="pt-16 p-4 sm:p-8">
+        <div className="pt-28 p-4 sm:p-8">
           <div className="mb-8">
             <h1 className="text-2xl font-black text-zinc-900 tracking-tight">
               Profile Settings
@@ -148,6 +193,40 @@ export default function ProfilePage({ profile }: { profile: any }) {
                 {profile?.email || "N/A"}
               </p>
             </div>
+
+            {profile?.role === "admin" && (
+              <div className="pt-4 border-t border-zinc-100 space-y-4">
+                <h3 className="text-sm font-black text-zinc-900">
+                  Change Password
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-400">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:ring-2 ring-amber-500/20 outline-none transition-all placeholder:text-zinc-300"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-400">
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 text-zinc-900 focus:ring-2 ring-amber-500/20 outline-none transition-all placeholder:text-zinc-300"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center gap-4 pt-4">
               <button

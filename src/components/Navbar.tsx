@@ -23,12 +23,11 @@ export default function Navbar({ profile }: { profile: any }) {
           }
           className="flex items-center gap-2 group"
         >
-          <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center transition-transform group-hover:rotate-12">
-            <Scissors className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-bold text-xl tracking-tight hidden sm:block text-zinc-900">
-            BarberShop
-          </span>
+          <img
+            src="/logo.png"
+            alt="BarberShop"
+            className="h-12 w-auto object-contain transition-transform group-hover:scale-105"
+          />
         </Link>
 
         <div className="flex items-center gap-4 sm:gap-6">
@@ -44,9 +43,17 @@ export default function Navbar({ profile }: { profile: any }) {
 
           <Link
             href={
-              profile?.role === "barber" ? "/dashboard/barber/profile" : "#"
+              profile?.role === "barber"
+                ? "/dashboard/barber/profile"
+                : profile?.role === "admin"
+                  ? "/dashboard/admin/profile"
+                  : "#"
             }
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 transition-all ${profile?.role === "barber" ? "hover:bg-zinc-200 cursor-pointer" : "cursor-default"}`}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 transition-all ${
+              ["barber", "admin"].includes(profile?.role)
+                ? "hover:bg-zinc-200 cursor-pointer"
+                : "cursor-default"
+            }`}
           >
             {profile?.avatar_url ? (
               <img

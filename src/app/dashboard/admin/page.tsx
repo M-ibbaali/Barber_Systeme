@@ -4,6 +4,7 @@ import BarberManager from "@/components/admin/BarberManager";
 import GlobalIncomeTable from "@/components/admin/GlobalIncomeTable";
 import PendingActions from "@/components/admin/PendingActions";
 import { Users, TrendingUp, DollarSign } from "lucide-react";
+import Link from "next/link";
 
 export default async function AdminDashboard(props: {
   searchParams: Promise<{ date?: string; barberId?: string }>;

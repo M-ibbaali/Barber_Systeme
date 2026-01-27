@@ -89,7 +89,17 @@ export default function IncomeList({
   };
 
   const formatTime = (timeStr: string) => {
-    return timeStr.split(".")[0];
+    const [hours, minutes, seconds] = timeStr.split(":").map(Number);
+    const date = new Date();
+    date.setHours(hours + 1);
+    date.setMinutes(minutes);
+    date.setSeconds(seconds || 0);
+    return date.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
   if (initialIncomes.length === 0) {

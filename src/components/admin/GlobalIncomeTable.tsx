@@ -213,7 +213,23 @@ export default function GlobalIncomeTable({
                       </td>
                       <td className="px-6 py-4 text-zinc-500 text-sm whitespace-nowrap">
                         <div className="flex flex-col">
-                          <span>{income.time.split(".")[0]}</span>
+                          <span>
+                            {(() => {
+                              const [hours, minutes, seconds] = income.time
+                                .split(":")
+                                .map(Number);
+                              const date = new Date();
+                              date.setHours(hours + 1);
+                              date.setMinutes(minutes);
+                              date.setSeconds(seconds || 0);
+                              return date.toLocaleTimeString("en-US", {
+                                hour12: false,
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                              });
+                            })()}
+                          </span>
                           {(isPending
                             ? state.pending?.new_note
                             : income.note) && (
