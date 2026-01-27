@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Trash2, Edit2, Clock, StickyNote } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import EditIncomeModal from "./EditIncomeModal";
 
 export default function IncomeList({
   initialIncomes,
@@ -13,6 +14,7 @@ export default function IncomeList({
   const router = useRouter();
   const supabase = createClient();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingIncome, setEditingIncome] = useState<any>(null);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this record?")) return;
@@ -68,6 +70,13 @@ export default function IncomeList({
 
             <div className="flex items-center gap-2">
               <button
+                onClick={() => setEditingIncome(income)}
+                className="p-2 rounded-lg text-zinc-300 hover:text-amber-500 hover:bg-amber-50 transition-all"
+                title="Edit Record"
+              >
+                <Edit2 className="w-5 h-5" />
+              </button>
+              <button
                 onClick={() => handleDelete(income.id)}
                 disabled={deletingId === income.id}
                 className="p-2 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 transition-all disabled:opacity-50"
@@ -79,6 +88,13 @@ export default function IncomeList({
           </div>
         </div>
       ))}
+
+      {editingIncome && (
+        <EditIncomeModal
+          income={editingIncome}
+          onClose={() => setEditingIncome(null)}
+        />
+      )}
     </div>
   );
 }
