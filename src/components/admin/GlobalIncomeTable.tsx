@@ -1,9 +1,21 @@
 "use client";
 
-import { Calendar, Filter, Check, X, Loader2 } from "lucide-react";
+import {
+  Calendar,
+  Filter,
+  Check,
+  X,
+  Loader2,
+  Eye,
+  Edit2,
+  Trash2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import ViewIncomeModal from "./ViewIncomeModal";
+import AdminEditIncomeModal from "./AdminEditIncomeModal";
+import CustomDialog from "../ui/CustomDialog";
 
 export default function GlobalIncomeTable({
   incomes,
@@ -23,6 +35,10 @@ export default function GlobalIncomeTable({
   const router = useRouter();
   const supabase = createClient();
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [viewingIncome, setViewingIncome] = useState<any | null>(null);
+  const [editingIncome, setEditingIncome] = useState<any | null>(null);
+  const [deletingIncome, setDeletingIncome] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleFilterChange = (key: string, value: string) => {
     const url = new URL(window.location.href);
@@ -69,6 +85,29 @@ export default function GlobalIncomeTable({
       alert("Error processing action");
     } finally {
       setProcessingId(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deletingIncome) return;
+    setIsDeleting(true);
+
+    try {
+      const { error } = await supabase
+        .from("incomes")
+        .update({ is_deleted: true })
+        .eq("id", deletingIncome.id);
+
+      if (!error) {
+        setDeletingIncome(null);
+        router.refresh();
+      } else {
+        alert("Error deleting record: " + error.message);
+      }
+    } catch (err) {
+      alert("An unexpected error occurred");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -242,37 +281,64 @@ export default function GlobalIncomeTable({
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        {isPending && (
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              disabled={processingId === state.pending?.id}
-                              onClick={() =>
-                                handleAction(state.pending, "APPROVED")
-                              }
-                              className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-all border border-emerald-200 shadow-sm flex items-center gap-1"
-                              title="Approve Change"
-                            >
-                              {processingId === state.pending?.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Check className="w-4 h-4" />
-                              )}
-                              <span className="text-[10px] font-bold">
-                                Approve
-                              </span>
-                            </button>
-                            <button
-                              disabled={processingId === state.pending?.id}
-                              onClick={() =>
-                                handleAction(state.pending, "REJECTED")
-                              }
-                              className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all border border-red-100"
-                              title="Reject Change"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
+                        <div className="flex items-center justify-end gap-2">
+                          {!isPending && (
+                            <>
+                              <button
+                                onClick={() => setViewingIncome(income)}
+                                className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+                                title="View Details"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => setEditingIncome(income)}
+                                className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+                                title="Edit Record"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => setDeletingIncome(income)}
+                                className="p-2 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                                title="Delete Record"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                          {isPending && (
+                            <>
+                              <button
+                                disabled={processingId === state.pending?.id}
+                                onClick={() =>
+                                  handleAction(state.pending, "APPROVED")
+                                }
+                                className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-all border border-emerald-200 shadow-sm flex items-center gap-1"
+                                title="Approve Change"
+                              >
+                                {processingId === state.pending?.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Check className="w-4 h-4" />
+                                )}
+                                <span className="text-[10px] font-bold">
+                                  Approve
+                                </span>
+                              </button>
+                              <button
+                                disabled={processingId === state.pending?.id}
+                                onClick={() =>
+                                  handleAction(state.pending, "REJECTED")
+                                }
+                                className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all border border-red-100"
+                                title="Reject Change"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -282,6 +348,30 @@ export default function GlobalIncomeTable({
           </table>
         </div>
       </div>
+      {viewingIncome && (
+        <ViewIncomeModal
+          income={viewingIncome}
+          onClose={() => setViewingIncome(null)}
+        />
+      )}
+
+      {editingIncome && (
+        <AdminEditIncomeModal
+          income={editingIncome}
+          onClose={() => setEditingIncome(null)}
+        />
+      )}
+
+      <CustomDialog
+        isOpen={!!deletingIncome}
+        onClose={() => setDeletingIncome(null)}
+        onConfirm={handleDelete}
+        title="Delete Record"
+        description={`Are you sure you want to delete this record for ${deletingIncome?.profiles?.name}? This action cannot be undone.`}
+        type="danger"
+        confirmText="Delete"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
