@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import CustomDialog from "../ui/CustomDialog";
 import { X, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -21,6 +21,8 @@ const incomeSchema = z.object({
 
 type IncomeFormValues = z.infer<typeof incomeSchema>;
 
+import { useTranslations } from "next-intl";
+
 export default function EditIncomeModal({
   income,
   onClose,
@@ -30,6 +32,8 @@ export default function EditIncomeModal({
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const t = useTranslations("EditIncomeModal");
+  const commonT = useTranslations("Common");
   const supabase = createClient();
   const [dialog, setDialog] = useState<{
     isOpen: boolean;
@@ -69,9 +73,8 @@ export default function EditIncomeModal({
     if (existingPending) {
       setDialog({
         isOpen: true,
-        title: "Request Pending",
-        description:
-          "A request is already pending for this record. Please wait for the admin to review it.",
+        title: t("requestPendingTitle"),
+        description: t("requestPendingDesc"),
         type: "warning",
       });
       setLoading(false);
@@ -97,7 +100,7 @@ export default function EditIncomeModal({
     } else {
       setDialog({
         isOpen: true,
-        title: "Error",
+        title: t("errorTitle"),
         description: error.message,
         type: "danger",
       });
@@ -106,20 +109,20 @@ export default function EditIncomeModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-        <div className="bg-white border border-zinc-200 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-          <div className="p-6 sm:p-8 border-b border-zinc-200 flex items-center justify-between bg-zinc-50/30">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="p-6 sm:p-8 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/30 dark:bg-zinc-800/30">
             <div>
-              <h2 className="text-xl font-black text-zinc-900 tracking-tight">
-                Edit Income
+              <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight">
+                {t("editIncome")}
               </h2>
-              <p className="text-zinc-500 text-xs font-bold mt-1 uppercase tracking-widest">
-                Update record details
+              <p className="text-zinc-500 dark:text-zinc-400 text-xs font-bold mt-1 uppercase tracking-widest">
+                {t("updateDetails")}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-full hover:bg-zinc-100 text-zinc-400 hover:text-zinc-600 transition-colors"
+              className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -131,30 +134,32 @@ export default function EditIncomeModal({
           >
             <div className="space-y-2">
               <label className="text-xs font-black text-zinc-400 uppercase tracking-widest">
-                Sale Amount (DH)
+                {t("saleAmount")}
               </label>
               <input
                 {...register("amount")}
                 type="text"
                 inputMode="decimal"
-                className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-zinc-900 focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all text-2xl sm:text-3xl font-black placeholder:text-zinc-200"
+                className="w-full px-5 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all text-2xl sm:text-3xl font-black placeholder:text-zinc-200 dark:placeholder:text-zinc-700"
               />
               {errors.amount && (
                 <p className="mt-1 text-xs text-red-500 font-bold flex items-center gap-1">
                   <X className="w-3 h-3" />
-                  {errors.amount.message}
+                  {errors.amount.message === "Must be a positive number"
+                    ? t("mustBePositive")
+                    : errors.amount.message}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
               <label className="text-xs font-black text-zinc-400 uppercase tracking-widest">
-                Quick Note
+                {t("quickNote")}
               </label>
               <input
                 {...register("note")}
-                placeholder="Haircut, Beard, etc..."
-                className="w-full px-5 py-4 bg-zinc-50 border border-zinc-200 rounded-2xl text-zinc-900 focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all font-bold placeholder:text-zinc-400 text-sm sm:text-base"
+                placeholder={t("quickNotePlaceholder")}
+                className="w-full px-5 py-4 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-2xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all font-bold placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-sm sm:text-base"
               />
             </div>
 
@@ -162,9 +167,9 @@ export default function EditIncomeModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full sm:flex-1 py-4 px-4 rounded-2xl font-black bg-zinc-100 text-zinc-600 hover:bg-zinc-200 transition-colors order-2 sm:order-1"
+                className="w-full sm:flex-1 py-4 px-4 rounded-2xl font-black bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors order-2 sm:order-1"
               >
-                Cancel
+                {commonT("cancel")}
               </button>
               <button
                 type="submit"
@@ -174,7 +179,7 @@ export default function EditIncomeModal({
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  "Save Changes"
+                  commonT("save")
                 )}
               </button>
             </div>

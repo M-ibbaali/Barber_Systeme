@@ -10,15 +10,24 @@ import {
   BarChart3,
   Clock,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export default async function BarberDashboard(props: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ date?: string }>;
 }) {
+  const { locale } = await props.params;
   const searchParams = await props.searchParams;
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const t = await getTranslations("BarberDashboard");
+
+  if (!user) {
+    const { redirect } = await import("@/i18n/routing");
+    redirect({ href: "/login", locale });
+  }
 
   const today = new Date().toISOString().split("T")[0];
   const filterDate = searchParams.date || today;
@@ -111,10 +120,10 @@ export default async function BarberDashboard(props: {
       <div className="flex flex-row items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
-            Dashboard
+            {t("title")}
           </h1>
           <p className="text-zinc-500 text-xs sm:text-sm mt-0.5 line-clamp-1">
-            Manage your daily earnings & performance
+            {t("subtitle")}
           </p>
         </div>
         <AddIncomeForm barberId={user?.id} />
@@ -122,57 +131,57 @@ export default async function BarberDashboard(props: {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Selected Date Card */}
-        <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm flex items-start justify-between">
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-start justify-between">
           <div>
-            <p className="text-zinc-500 text-sm font-medium uppercase tracking-wider">
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium uppercase tracking-wider">
               {filterDate === today
-                ? "Today's Total"
-                : `Total for ${filterDate}`}
+                ? t("selectedCard.today")
+                : t("selectedCard.specificDate", { date: filterDate })}
             </p>
-            <p className="text-3xl font-bold mt-2 text-amber-600">
+            <p className="text-3xl font-bold mt-2 text-amber-600 dark:text-amber-500">
               {stats.selected.toFixed(2)} DH
             </p>
-            <p className="text-xs text-zinc-400 mt-1">
-              Earnings for selected day
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+              {t("selectedCard.desc")}
             </p>
           </div>
-          <div className="p-3 bg-amber-50 rounded-xl border border-amber-100 text-amber-600">
+          <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-900/50 text-amber-600 dark:text-amber-500">
             <Wallet className="w-6 h-6" />
           </div>
         </div>
 
         {/* Week Card */}
-        <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm flex items-start justify-between">
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-start justify-between">
           <div>
-            <p className="text-zinc-500 text-sm font-medium uppercase tracking-wider">
-              Weekly (Selected Period)
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium uppercase tracking-wider">
+              {t("weekCard.title")}
             </p>
-            <p className="text-3xl font-bold mt-2 text-zinc-900">
+            <p className="text-3xl font-bold mt-2 text-zinc-900 dark:text-zinc-100">
               {stats.week.toFixed(2)} DH
             </p>
-            <p className="text-xs text-zinc-400 mt-1">
-              Total for the seven-day period
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+              {t("weekCard.desc")}
             </p>
           </div>
-          <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 text-blue-600">
+          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-900/50 text-blue-600 dark:text-blue-500">
             <BarChart3 className="w-6 h-6" />
           </div>
         </div>
 
         {/* Month Card */}
-        <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm flex items-start justify-between">
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-start justify-between">
           <div>
-            <p className="text-zinc-500 text-sm font-medium uppercase tracking-wider">
-              Monthly (Selected Period)
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium uppercase tracking-wider">
+              {t("monthCard.title")}
             </p>
-            <p className="text-3xl font-bold mt-2 text-zinc-900">
+            <p className="text-3xl font-bold mt-2 text-zinc-900 dark:text-zinc-100">
               {stats.month.toFixed(2)} DH
             </p>
-            <p className="text-xs text-zinc-400 mt-1">
-              Total for the current month
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+              {t("monthCard.desc")}
             </p>
           </div>
-          <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-600">
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-500">
             <TrendingUp className="w-6 h-6" />
           </div>
         </div>
@@ -185,11 +194,13 @@ export default async function BarberDashboard(props: {
         </div>
 
         {/* Records Section */}
-        <div className="order-1 xl:order-2 bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
-          <div className="p-6 border-b border-zinc-200 bg-zinc-50/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-zinc-400" />
-              Records for {filterDate === today ? "Today" : filterDate}
+        <div className="order-1 xl:order-2 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-800/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
+              {filterDate === today
+                ? t("recordsTitle.today")
+                : t("recordsTitle.specificDate", { date: filterDate })}
             </h2>
             <BarberDatePicker defaultValue={filterDate} />
           </div>

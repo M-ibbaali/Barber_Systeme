@@ -1,15 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/routing";
 import ProfileForm from "@/components/barber/ProfileForm";
 
-export default async function BarberProfilePage() {
+export default async function BarberProfilePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    return redirect({ href: "/login", locale });
   }
 
   const { data: profile } = await supabase

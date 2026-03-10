@@ -2,6 +2,7 @@
 
 import { AlertCircle, CheckCircle, Info, X, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 type DialogType = "info" | "success" | "warning" | "danger" | "confirm";
 
@@ -24,11 +25,16 @@ export default function CustomDialog({
   title,
   description,
   type = "info",
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText,
+  cancelText,
   isLoading = false,
 }: CustomDialogProps) {
   const [show, setShow] = useState(false);
+  const commonT = useTranslations("Common");
+
+  const finalConfirmText = confirmText || commonT("confirm");
+  const finalCancelText = cancelText || commonT("cancel");
+  const finalCloseText = commonT("close");
 
   useEffect(() => {
     if (isOpen) {
@@ -46,28 +52,28 @@ export default function CustomDialog({
   const config = {
     info: {
       icon: <Info className="w-6 h-6 text-blue-500" />,
-      bg: "bg-blue-50",
-      btn: "bg-blue-600 hover:bg-blue-700 shadow-blue-200",
+      bg: "bg-blue-50 dark:bg-blue-500/10",
+      btn: "bg-blue-600 hover:bg-blue-700 shadow-blue-200 dark:shadow-none",
     },
     success: {
       icon: <CheckCircle className="w-6 h-6 text-emerald-500" />,
-      bg: "bg-emerald-50",
-      btn: "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200",
+      bg: "bg-emerald-50 dark:bg-emerald-500/10",
+      btn: "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200 dark:shadow-none",
     },
     warning: {
       icon: <AlertCircle className="w-6 h-6 text-amber-500" />,
-      bg: "bg-amber-50",
-      btn: "bg-amber-600 hover:bg-amber-700 shadow-amber-200",
+      bg: "bg-amber-50 dark:bg-amber-500/10",
+      btn: "bg-amber-600 hover:bg-amber-700 shadow-amber-200 dark:shadow-none",
     },
     danger: {
       icon: <AlertCircle className="w-6 h-6 text-red-500" />,
-      bg: "bg-red-50",
-      btn: "bg-red-600 hover:bg-red-700 shadow-red-200",
+      bg: "bg-red-50 dark:bg-red-500/10",
+      btn: "bg-red-600 hover:bg-red-700 shadow-red-200 dark:shadow-none",
     },
     confirm: {
       icon: <AlertCircle className="w-6 h-6 text-zinc-500" />,
-      bg: "bg-zinc-50",
-      btn: "bg-zinc-900 hover:bg-zinc-800 shadow-zinc-200",
+      bg: "bg-zinc-50 dark:bg-zinc-800",
+      btn: "bg-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 shadow-zinc-200 dark:shadow-none",
     },
   }[type];
 
@@ -85,7 +91,7 @@ export default function CustomDialog({
 
       {/* Dialog Box */}
       <div
-        className={`relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden transition-all duration-300 transform ${
+        className={`relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden transition-all duration-300 transform ${
           isOpen ? "scale-100 translate-y-0" : "scale-95 translate-y-4"
         }`}
       >
@@ -97,11 +103,11 @@ export default function CustomDialog({
               {config.icon}
             </div>
 
-            <h3 className="text-xl font-bold text-zinc-900 mb-2 leading-tight">
+            <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-2 leading-tight">
               {title}
             </h3>
 
-            <p className="text-zinc-500 text-sm leading-relaxed">
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed">
               {description}
             </p>
           </div>
@@ -116,7 +122,7 @@ export default function CustomDialog({
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  confirmText
+                  finalConfirmText
                 )}
               </button>
             )}
@@ -124,9 +130,9 @@ export default function CustomDialog({
             <button
               onClick={onClose}
               disabled={isLoading}
-              className={`flex-1 order-2 sm:order-1 py-3 px-6 rounded-2xl text-zinc-600 font-bold text-sm bg-zinc-100 hover:bg-zinc-200 transition-all active:scale-95 disabled:opacity-50`}
+              className={`flex-1 order-2 sm:order-1 py-3 px-6 rounded-2xl text-zinc-600 dark:text-zinc-300 font-bold text-sm bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all active:scale-95 disabled:opacity-50`}
             >
-              {onConfirm ? cancelText : "Close"}
+              {onConfirm ? finalCancelText : finalCloseText}
             </button>
           </div>
         </div>
@@ -135,7 +141,7 @@ export default function CustomDialog({
         <button
           onClick={onClose}
           disabled={isLoading}
-          className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-xl transition-colors"
+          className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
         >
           <X className="w-5 h-5" />
         </button>

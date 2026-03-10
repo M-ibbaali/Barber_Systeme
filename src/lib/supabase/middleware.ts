@@ -30,10 +30,19 @@ export async function updateSession(request: NextRequest) {
   // refreshing the auth token
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Extract locale from pathname if present
+  const pathname = request.nextUrl.pathname
+  const pathParts = pathname.split('/').filter(Boolean)
+  const locales = ['en', 'fr']
+  const currentLocale = locales.includes(pathParts[0]) ? pathParts[0] : 'en'
+  const pathWithoutLocale = locales.includes(pathParts[0])
+    ? '/' + pathParts.slice(1).join('/')
+    : pathname
+
   // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (pathWithoutLocale.startsWith('/dashboard')) {
     if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      return NextResponse.redirect(new URL(`/${currentLocale}/login`, request.url))
     }
 
     // Role-based access control and Status check
@@ -45,33 +54,33 @@ export async function updateSession(request: NextRequest) {
 
     // Block inactive users
     if (profile && !profile.is_active) {
-       const loginUrl = new URL("/login", request.url);
+       const loginUrl = new URL(`/${currentLocale}/login`, request.url);
        loginUrl.searchParams.set("error", "inactive_account");
        // Sign out the user session if inactive
        await supabase.auth.signOut();
        return NextResponse.redirect(loginUrl);
     }
 
-    if (request.nextUrl.pathname.startsWith("/dashboard/barber")) {
+    if (pathWithoutLocale.startsWith("/dashboard/barber")) {
       if (profile?.role === "admin") {
-        return NextResponse.redirect(new URL("/dashboard/admin", request.url));
+        return NextResponse.redirect(new URL(`/${currentLocale}/dashboard/admin`, request.url));
       }
       if (profile?.role !== "barber") {
         // If logged in but role is missing/wrong, don't allow dashboard access
-        const loginUrl = new URL("/login", request.url);
+        const loginUrl = new URL(`/${currentLocale}/login`, request.url);
         loginUrl.searchParams.set("error", "invalid_role");
         return NextResponse.redirect(loginUrl);
       }
     }
 
-    if (request.nextUrl.pathname.startsWith("/dashboard/admin")) {
+    if (pathWithoutLocale.startsWith("/dashboard/admin")) {
       if (profile?.role !== "admin") {
-        return NextResponse.redirect(new URL("/dashboard/barber", request.url));
+        return NextResponse.redirect(new URL(`/${currentLocale}/dashboard/barber`, request.url));
       }
     }
   }
 
-  if (request.nextUrl.pathname === "/login" && user) {
+  if (pathWithoutLocale === "/login" && user) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
@@ -79,9 +88,9 @@ export async function updateSession(request: NextRequest) {
       .single();
 
     if (profile?.role === "admin") {
-      return NextResponse.redirect(new URL("/dashboard/admin", request.url));
+      return NextResponse.redirect(new URL(`/${currentLocale}/dashboard/admin`, request.url));
     } else if (profile?.role === "barber") {
-      return NextResponse.redirect(new URL("/dashboard/barber", request.url));
+      return NextResponse.redirect(new URL(`/${currentLocale}/dashboard/barber`, request.url));
     }
     // If user is logged in but has NO valid role yet, stay on login
     // This prevents the loop: /login -> /dashboard -> /login

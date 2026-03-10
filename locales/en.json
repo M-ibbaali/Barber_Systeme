@@ -1,0 +1,191 @@
+{
+  "Common": {
+    "title": "Barber System",
+    "loading": "Loading...",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "close": "Close",
+    "ok": "OK",
+    "error": "Error",
+    "success": "Success"
+  },
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "profileSettings": "Profile Settings",
+    "adminPanel": "Admin Panel",
+    "signOut": "Sign Out"
+  },
+  "Login": {
+    "title": "Sign in to your account",
+    "emailLabel": "Email address",
+    "passwordLabel": "Password",
+    "submit": "Sign In",
+    "errors": {
+      "inactive": "Your account is inactive. Please contact the administrator.",
+      "unauthorized": "Unauthorized access.",
+      "generic": "Something went wrong."
+    }
+  },
+  "AdminDashboard": {
+    "title": "Admin Dashboard",
+    "subtitle": "Shop-wide performance and staff management",
+    "stats": {
+      "daily": "Daily Total",
+      "weekly": "Weekly Total",
+      "monthly": "Monthly Total",
+      "allTime": "All-Time Total",
+      "barbers": "Active Barbers"
+    },
+    "subtitles": {
+      "daily": "For {date}{filtered}",
+      "filtered": " (Filtered)",
+      "weekly": "Full week of selected date",
+      "monthly": "Full month of selected date",
+      "allTime": "Since start",
+      "barbers": "Registered staff"
+    }
+  },
+  "BarberManager": {
+    "title": "Barbers",
+    "add": "Add",
+    "close": "Close",
+    "createNew": "Create New Barber",
+    "namePlaceholder": "Name",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "createAccount": "Create Account",
+    "editTitle": "Edit Barber",
+    "newPasswordLabel": "New Password (leave empty to keep same)",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "inactive": "Inactive",
+    "total": "Total",
+    "success": {
+      "created": "Barber account created successfully!",
+      "updated": "Barber updated successfully!",
+      "deleted": "Barber deleted successfully."
+    },
+    "confirmDelete": "Are you sure you want to delete {name}? This action cannot be undone and will delete all their income records."
+  },
+  "GlobalIncomeTable": {
+    "title": "Income Overview",
+    "auditSafe": "Audit Safe",
+    "allBarbers": "All Barbers",
+    "headers": {
+      "barber": "Barber",
+      "financialState": "Financial State",
+      "auditStatus": "Audit Status",
+      "time": "Time",
+      "actions": "Actions"
+    },
+    "empty": "No confirmed income for this date.",
+    "initially": "Initially:",
+    "status": {
+      "pending": "Pending {action}",
+      "modified": "Modified & Approved",
+      "original": "Original"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "deleteConfirm": "Are you sure you want to delete this record for {name}? This action cannot be undone."
+    }
+  },
+  "PendingActions": {
+    "title": "Pending Actions ({count})",
+    "unknown": "Unknown",
+    "time": {
+      "justNow": "Just now",
+      "recent": "Recent"
+    },
+    "requests": {
+      "deleteRecord": "Requested to delete record:"
+    },
+    "newNote": "New note:",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "BarberDashboard": {
+    "title": "Dashboard",
+    "subtitle": "Manage your daily earnings & performance",
+    "selectedCard": {
+      "today": "Today's Total",
+      "specificDate": "Total for {date}",
+      "desc": "Earnings for selected day"
+    },
+    "weekCard": {
+      "title": "Weekly (Selected Period)",
+      "desc": "Total for the seven-day period"
+    },
+    "monthCard": {
+      "title": "Monthly (Selected Period)",
+      "desc": "Total for the current month"
+    },
+    "recordsTitle": {
+      "today": "Records for Today",
+      "specificDate": "Records for {date}"
+    }
+  },
+  "IncomeList": {
+    "deleteTitle": "Delete Record?",
+    "deleteDesc": "Are you sure you want to delete this record? A request will be sent to the administrator for approval.",
+    "requestPendingTitle": "Request Pending",
+    "requestPendingDesc": "A deletion request is already pending for this record. Please wait for the admin to review it.",
+    "errorTitle": "Error",
+    "noRecords": "No records for today yet."
+  },
+  "AddIncomeForm": {
+    "addRecord": "Add Record",
+    "newIncome": "New Income",
+    "autoSetToday": "Auto-set to today",
+    "saleAmount": "Sale Amount (DH)",
+    "quickNote": "Quick Note",
+    "quickNotePlaceholder": "Haircut, Beard, etc...",
+    "errorTitle": "Error",
+    "mustBePositive": "Must be a positive number"
+  },
+  "EditIncomeModal": {
+    "editIncome": "Edit Income",
+    "updateDetails": "Update record details",
+    "saleAmount": "Sale Amount (DH)",
+    "quickNote": "Quick Note",
+    "quickNotePlaceholder": "Haircut, Beard, etc...",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "errorTitle": "Error",
+    "mustBePositive": "Must be a positive number",
+    "requestPendingTitle": "Request Pending",
+    "requestPendingDesc": "A request is already pending for this record. Please wait for the admin to review it."
+  },
+  "DailyAnalysis": {
+    "title": "Daily Performance",
+    "last30Days": "Last 30 Days",
+    "headers": {
+      "date": "Date",
+      "records": "Records",
+      "totalAmount": "Total Amount"
+    },
+    "noData": "No historical data available.",
+    "services": "services"
+  },
+  "ProfileForm": {
+    "back": "Back to Dashboard",
+    "title": "Profile Settings",
+    "subtitle": "Manage your public information and avatar",
+    "fullName": "Full Name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email Address",
+    "preVerified": "Pre-verified",
+    "changePassword": "Change Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "saveChanges": "Save Changes",
+    "saved": "Saved!",
+    "passwordsNotMatch": "Passwords do not match!",
+    "failedSavePhoto": "Failed to save profile photo: "
+  }
+}

@@ -1,17 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { redirect, Link } from "@/i18n/routing";
 import ProfileForm from "@/components/barber/ProfileForm";
 import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
 
-export default async function AdminProfilePage() {
+export default async function AdminProfilePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/");
+    return redirect({ href: "/login", locale });
   }
 
   // Get profile
@@ -28,6 +32,12 @@ export default async function AdminProfilePage() {
           href="/dashboard/admin"
           className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 transition-colors group"
         >
+          <div className="p-2 rounded-full border border-zinc-200 group-hover:bg-zinc-100 transition-colors">
+            <ChevronLeft className="w-4 h-4" />
+          </div>
+          <span className="text-sm font-bold uppercase tracking-wider">
+            Back to Dashboard
+          </span>
         </Link>
       </div>
 

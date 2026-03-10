@@ -1,0 +1,191 @@
+{
+  "Common": {
+    "title": "نظام الحلاقة",
+    "loading": "جاري التحميل...",
+    "save": "حفظ التغييرات",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "back": "رجوع",
+    "close": "إغلاق",
+    "ok": "موافق",
+    "error": "خطأ",
+    "success": "نجاح"
+  },
+  "Navigation": {
+    "dashboard": "لوحة القيادة",
+    "profileSettings": "إعدادات الملف الشخصي",
+    "adminPanel": "لوحة الإدارة",
+    "signOut": "تسجيل الخروج"
+  },
+  "Login": {
+    "title": "تسجيل الدخول إلى حسابك",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "submit": "تسجيل الدخول",
+    "errors": {
+      "inactive": "حسابك غير نشط. يرجى الاتصال بالمسؤول.",
+      "unauthorized": "دخول غير مصرح به.",
+      "generic": "حدث خطأ ما."
+    }
+  },
+  "AdminDashboard": {
+    "title": "لوحة الإدارة",
+    "subtitle": "أداء المتجر وإدارة الموظفين",
+    "stats": {
+      "daily": "الإجمالي اليومي",
+      "weekly": "الإجمالي الأسبوعي",
+      "monthly": "الإجمالي الشهري",
+      "allTime": "الإجمالي الكلي",
+      "barbers": "الحلاقين النشطين"
+    },
+    "subtitles": {
+      "daily": "لـ {date}{filtered}",
+      "filtered": " (مفلتر)",
+      "weekly": "أسبوع كامل من التاريخ المحدد",
+      "monthly": "شهر كامل من التاريخ المحدد",
+      "allTime": "منذ البداية",
+      "barbers": "الموظفين المسجلين"
+    }
+  },
+  "BarberManager": {
+    "title": "الحلاقين",
+    "add": "إضافة",
+    "close": "إغلاق",
+    "createNew": "إنشاء حلاق جديد",
+    "namePlaceholder": "الاسم",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "passwordPlaceholder": "كلمة المرور",
+    "createAccount": "إنشاء الحساب",
+    "editTitle": "تعديل الحلاق",
+    "newPasswordLabel": "كلمة المرور الجديدة (اتركه فارغاً للاحتفاظ بالقديمة)",
+    "cancel": "إلغاء",
+    "saveChanges": "حفظ التغييرات",
+    "inactive": "غير نشط",
+    "total": "المجموع",
+    "success": {
+      "created": "تم إنشاء حساب الحلاق بنجاح!",
+      "updated": "تم تحديث الحلاق بنجاح!",
+      "deleted": "تم حذف الحلاق بنجاح."
+    },
+    "confirmDelete": "هل أنت متأكد أنك تريد حذف {name}؟ هذا الإجراء لا يمكن التراجع عنه وسيحذف جميع سجلات الدخل الخاصة به."
+  },
+  "GlobalIncomeTable": {
+    "title": "نظرة عامة على الدخل",
+    "auditSafe": "تدقيق آمن",
+    "allBarbers": "جميع الحلاقين",
+    "headers": {
+      "barber": "الحلاق",
+      "financialState": "الحالة المالية",
+      "auditStatus": "حالة التدقيق",
+      "time": "الوقت",
+      "actions": "الإجراءات"
+    },
+    "empty": "لا يوجد دخل مؤكد لهذا التاريخ.",
+    "initially": "في البداية:",
+    "status": {
+      "pending": "قيد انتظار {action}",
+      "modified": "معدل ومعتمد",
+      "original": "أصلي"
+    },
+    "actions": {
+      "approve": "موافقة",
+      "reject": "رفض",
+      "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا السجل لـ {name}؟ هذا الإجراء لا يمكن التراجع عنه."
+    }
+  },
+  "PendingActions": {
+    "title": "الإجراءات المعلقة ({count})",
+    "unknown": "غير معروف",
+    "time": {
+      "justNow": "الآن",
+      "recent": "مؤخراً"
+    },
+    "requests": {
+      "deleteRecord": "طلب حذف سجل:"
+    },
+    "newNote": "ملاحظة جديدة:",
+    "approve": "موافقة",
+    "reject": "رفض"
+  },
+  "BarberDashboard": {
+    "title": "لوحة القيادة",
+    "subtitle": "إدارة أرباحك وأدائك اليومي",
+    "selectedCard": {
+      "today": "إجمالي اليوم",
+      "specificDate": "الإجمالي لتاريخ {date}",
+      "desc": "أرباح اليوم المحدد"
+    },
+    "weekCard": {
+      "title": "أسبوعي (فترة محددة)",
+      "desc": "الإجمالي لفترة السبعة أيام"
+    },
+    "monthCard": {
+      "title": "شهري (فترة محددة)",
+      "desc": "الإجمالي للشهر الحالي"
+    },
+    "recordsTitle": {
+      "today": "سجلات اليوم",
+      "specificDate": "سجلات تاريخ {date}"
+    }
+  },
+  "IncomeList": {
+    "deleteTitle": "هل تريد حذف السجل؟",
+    "deleteDesc": "هل أنت متأكد من رغبتك في حذف هذا السجل؟ سيتم إرسال طلب إلى المسؤول للموافقة.",
+    "requestPendingTitle": "طلب معلق بالموافقة",
+    "requestPendingDesc": "يوجد طلب حذف معلق بالفعل لهذا السجل. يرجى الانتظار حتى يراجعه المسؤول.",
+    "errorTitle": "خطأ",
+    "noRecords": "لا توجد سجلات لليوم حتى الآن."
+  },
+  "AddIncomeForm": {
+    "addRecord": "إضافة سجل",
+    "newIncome": "دخل جديد",
+    "autoSetToday": "يُسجل تلقائيًا لليوم",
+    "saleAmount": "قيمة المبيعات (درهم)",
+    "quickNote": "ملاحظة سريعة",
+    "quickNotePlaceholder": "قص شعر، لحية، إلخ...",
+    "errorTitle": "خطأ",
+    "mustBePositive": "يجب أن يكون رقماً موجباً"
+  },
+  "EditIncomeModal": {
+    "editIncome": "تعديل الدخل",
+    "updateDetails": "تحديث تفاصيل السجل",
+    "saleAmount": "قيمة المبيعات (درهم)",
+    "quickNote": "ملاحظة سريعة",
+    "quickNotePlaceholder": "قص شعر، لحية، إلخ...",
+    "cancel": "إلغاء",
+    "saveChanges": "حفظ التغييرات",
+    "errorTitle": "خطأ",
+    "mustBePositive": "يجب أن يكون رقماً موجباً",
+    "requestPendingTitle": "طلب معلق بالموافقة",
+    "requestPendingDesc": "يوجد طلب بالفعل معلق لهذا السجل. يرجى الانتظار حتى يراجعه المسؤول."
+  },
+  "DailyAnalysis": {
+    "title": "الأداء اليومي",
+    "last30Days": "آخر 30 يوماً",
+    "headers": {
+      "date": "التاريخ",
+      "records": "السجلات",
+      "totalAmount": "إجمالي المبلغ"
+    },
+    "noData": "لا تتوفر بيانات تاريخية.",
+    "services": "خدمات"
+  },
+  "ProfileForm": {
+    "back": "العودة إلى لوحة القيادة",
+    "title": "إعدادات الملف الشخصي",
+    "subtitle": "إدارة معلوماتك العامة وصورتك الرمزية",
+    "fullName": "الاسم الكامل",
+    "namePlaceholder": "أدخل اسمك",
+    "email": "عنوان البريد الإلكتروني",
+    "preVerified": "تم التحقق مسبقاً",
+    "changePassword": "تغيير كلمة المرور",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "saveChanges": "حفظ التغييرات",
+    "saved": "تم الحفظ!",
+    "passwordsNotMatch": "كلمات المرور غير متطابقة!",
+    "failedSavePhoto": "فشل حفظ صورة الملف الشخصي: "
+  }
+}

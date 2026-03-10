@@ -2,9 +2,10 @@
 
 import { useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Link } from "@/i18n/routing"; // Localized Link
 import { User, Camera, Loader2, CheckCircle2, ChevronLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
 export default function ProfilePage({ profile }: { profile: any }) {
   const [name, setName] = useState(profile?.name || "");
@@ -16,6 +17,7 @@ export default function ProfilePage({ profile }: { profile: any }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
   const router = useRouter();
+  const t = useTranslations("ProfileForm");
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +39,7 @@ export default function ProfilePage({ profile }: { profile: any }) {
     // 2. Update Password if provided
     if (password) {
       if (password !== confirmPassword) {
-        alert("Passwords do not match!");
+        alert(t("passwordsNotMatch"));
         setLoading(false);
         return;
       }
@@ -91,7 +93,7 @@ export default function ProfilePage({ profile }: { profile: any }) {
       .eq("id", profile.id);
 
     if (updateError) {
-      alert("Failed to save profile photo: " + updateError.message);
+      alert(t("failedSavePhoto") + updateError.message);
       setLoading(false);
       return;
     }
@@ -108,27 +110,27 @@ export default function ProfilePage({ profile }: { profile: any }) {
       <div className="flex items-center justify-between">
         <Link
           href="/dashboard/barber"
-          className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 transition-colors group"
+          className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors group"
         >
-          <div className="p-2 rounded-full border border-zinc-200 group-hover:bg-zinc-100 transition-colors">
+          <div className="p-2 rounded-full border border-zinc-200 dark:border-zinc-800 group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800 transition-colors">
             <ChevronLeft className="w-4 h-4" />
           </div>
           <span className="text-sm font-bold uppercase tracking-wider">
-            Back to Dashboard
+            {t("back")}
           </span>
         </Link>
       </div>
 
-      <div className="bg-white rounded-3xl border border-zinc-200 shadow-xl shadow-zinc-200/50 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-xl shadow-zinc-200/50 dark:shadow-none overflow-hidden">
         <div className="h-32 bg-gradient-to-r from-amber-400 to-amber-600 relative">
           <div className="absolute  left-8 mt-5">
             <div className="relative group">
-              <div className="w-24 h-24 rounded-2xl bg-white p-1 shadow-2xl overflow-hidden ring-4 ring-white/50">
+              <div className="w-24 h-24 rounded-2xl bg-white dark:bg-zinc-900 p-1 shadow-2xl overflow-hidden ring-4 ring-white/50 dark:ring-zinc-900/50">
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
                     alt="Profile"
-                    className="w-full h-full object-cover rounded-xl bg-zinc-100"
+                    className="w-full h-full object-cover rounded-xl bg-zinc-100 dark:bg-zinc-800"
                   />
                 ) : (
                   <div className="w-full h-full bg-zinc-100 flex items-center justify-center rounded-xl border-2 border-zinc-100 border-dashed">
@@ -139,7 +141,7 @@ export default function ProfilePage({ profile }: { profile: any }) {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={loading}
-                className="absolute -right-3 -bottom-3 p-2.5 rounded-xl bg-zinc-900 text-white shadow-xl hover:scale-110 active:scale-95 transition-all disabled:opacity-50 ring-4 ring-white"
+                className="absolute -right-3 -bottom-3 p-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-xl hover:scale-110 active:scale-95 transition-all disabled:opacity-50 ring-4 ring-white dark:ring-zinc-900"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -160,49 +162,49 @@ export default function ProfilePage({ profile }: { profile: any }) {
 
         <div className="pt-28 p-4 sm:p-8">
           <div className="mb-8">
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight">
-              Profile Settings
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight">
+              {t("title")}
             </h1>
-            <p className="text-zinc-500 text-sm mt-1">
-              Manage your public information and avatar
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
+              {t("subtitle")}
             </p>
           </div>
 
           <form onSubmit={handleUpdateProfile} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-black text-zinc-400 uppercase tracking-widest leading-none">
-                Full Name
+              <label className="text-xs font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none">
+                {t("fullName")}
               </label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3.5 text-zinc-900 font-medium focus:ring-2 ring-amber-500/20 outline-none transition-all"
-                placeholder="Enter your name"
+                className="w-full bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-4 py-3.5 text-zinc-900 dark:text-zinc-100 font-medium focus:ring-2 ring-amber-500/20 outline-none transition-all placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                placeholder={t("namePlaceholder")}
                 required
               />
             </div>
 
-            <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+            <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">
-                  Email Address
+                  {t("email")}
                 </span>
-                <span className="text-zinc-400 italic">Pre-verified</span>
+                <span className="text-zinc-400 italic">{t("preVerified")}</span>
               </div>
-              <p className="text-zinc-800 font-medium">
+              <p className="text-zinc-800 dark:text-zinc-200 font-medium">
                 {profile?.email || "N/A"}
               </p>
             </div>
 
             {profile?.role === "admin" && (
               <div className="pt-4 border-t border-zinc-100 space-y-4">
-                <h3 className="text-sm font-black text-zinc-900">
-                  Change Password
+                <h3 className="text-sm font-black text-zinc-900 dark:text-zinc-100">
+                  {t("changePassword")}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-zinc-400">
-                      New Password
+                      {t("newPassword")}
                     </label>
                     <input
                       type="password"
@@ -214,7 +216,7 @@ export default function ProfilePage({ profile }: { profile: any }) {
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-zinc-400">
-                      Confirm Password
+                      {t("confirmPassword")}
                     </label>
                     <input
                       type="password"
@@ -232,18 +234,18 @@ export default function ProfilePage({ profile }: { profile: any }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-[2] bg-zinc-900 text-white font-black py-4 rounded-2xl hover:bg-zinc-800 transition-all flex items-center justify-center gap-2 shadow-xl shadow-zinc-900/10 active:scale-[0.98] disabled:opacity-50"
+                className="flex-[2] bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-black py-4 rounded-2xl hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-all flex items-center justify-center gap-2 shadow-xl shadow-zinc-900/10 dark:shadow-none active:scale-[0.98] disabled:opacity-50"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  "Save Changes"
+                  t("saveChanges")
                 )}
               </button>
               {success && (
                 <div className="flex-[1] flex items-center gap-2 text-emerald-600 font-bold text-sm animate-in fade-in slide-in-from-left-2 transition-all">
                   <CheckCircle2 className="w-5 h-5" />
-                  <span>Saved!</span>
+                  <span>{t("saved")}</span>
                 </div>
               )}
             </div>

@@ -4,13 +4,27 @@ import BarberManager from "@/components/admin/BarberManager";
 import GlobalIncomeTable from "@/components/admin/GlobalIncomeTable";
 import PendingActions from "@/components/admin/PendingActions";
 import { Users, TrendingUp, DollarSign } from "lucide-react";
-import Link from "next/link";
+import { redirect } from "@/i18n/routing";
+import { getTranslations } from "next-intl/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export default async function AdminDashboard(props: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ date?: string; barberId?: string }>;
 }) {
+  const { locale } = await props.params;
   const searchParams = await props.searchParams;
   const supabase = await createClient();
+  const t = await getTranslations("AdminDashboard");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect({ href: "/login", locale });
+  }
+
   const filterDate =
     searchParams.date || new Date().toISOString().split("T")[0];
   const filterBarberId = searchParams.barberId;
@@ -19,6 +33,19 @@ export default async function AdminDashboard(props: {
     .from("profiles")
     .select("*")
     .eq("role", "barber");
+
+  // Fetch emails using Admin API to display in the edit modal
+  const {
+    data: { users: authUsers },
+  } = await supabaseAdmin.auth.admin.listUsers();
+
+  const barbersWithEmail = barbers?.map((barber) => {
+    const authUser = authUsers?.find((u) => u.id === barber.id);
+    return {
+      ...barber,
+      email: authUser?.email || "",
+    };
+  });
 
   // Fetch strict SOURCE OF TRUTH (only approved records)
   let query = supabase
@@ -109,42 +136,43 @@ export default async function AdminDashboard(props: {
     <div className="space-y-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-zinc-400">
-            Shop-wide performance and staff management
-          </p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-zinc-400">{t("subtitle")}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
         <AdminStats
-          title="Daily Total"
+          title={t("stats.daily")}
           value={`${stats.daily.toFixed(2)} DH`}
-          subtitle={`For ${filterDate}${filterBarberId ? ` (Filtered)` : ""}`}
+          subtitle={t("subtitles.daily", {
+            date: filterDate,
+            filtered: filterBarberId ? t("subtitles.filtered") : "",
+          })}
           icon={<TrendingUp className="w-6 h-6 text-green-500" />}
         />
         <AdminStats
-          title="Weekly Total"
+          title={t("stats.weekly")}
           value={`${stats.week.toFixed(2)} DH`}
-          subtitle="Full week of selected date"
+          subtitle={t("subtitles.weekly")}
           icon={<TrendingUp className="w-6 h-6 text-blue-500" />}
         />
         <AdminStats
-          title="Monthly Total"
+          title={t("stats.monthly")}
           value={`${stats.month.toFixed(2)} DH`}
-          subtitle="Full month of selected date"
+          subtitle={t("subtitles.monthly")}
           icon={<TrendingUp className="w-6 h-6 text-emerald-500" />}
         />
         <AdminStats
-          title="All-Time Total"
+          title={t("stats.allTime")}
           value={`${stats.allTime.toFixed(2)} DH`}
-          subtitle="Since start"
+          subtitle={t("subtitles.allTime")}
           icon={<DollarSign className="w-6 h-6 text-amber-500" />}
         />
         <AdminStats
-          title="Active Barbers"
+          title={t("stats.barbers")}
           value={barbers?.length.toString() || "0"}
-          subtitle="Registered staff"
+          subtitle={t("subtitles.barbers")}
           icon={<Users className="w-6 h-6 text-blue-500" />}
         />
       </div>
@@ -158,7 +186,7 @@ export default async function AdminDashboard(props: {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
         <div className="xl:col-span-1 space-y-6">
           <BarberManager
-            initialBarbers={barbers || []}
+            initialBarbers={barbersWithEmail || []}
             barberTotals={barberTotals || {}}
           />
         </div>

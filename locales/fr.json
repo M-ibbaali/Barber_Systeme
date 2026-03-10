@@ -1,0 +1,191 @@
+{
+  "Common": {
+    "title": "Système de Coiffeur",
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "back": "Retour",
+    "close": "Fermer",
+    "ok": "OK",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "Navigation": {
+    "dashboard": "Tableau de Bord",
+    "profileSettings": "Paramètres du Profil",
+    "adminPanel": "Panneau d'Admin",
+    "signOut": "Se Déconnecter"
+  },
+  "Login": {
+    "title": "Connectez-vous à votre compte",
+    "emailLabel": "Adresse e-mail",
+    "passwordLabel": "Mot de passe",
+    "submit": "Se connecter",
+    "errors": {
+      "inactive": "Votre compte est inactif. Veuillez contacter l'administrateur.",
+      "unauthorized": "Accès non autorisé.",
+      "generic": "Une erreur s'est produite."
+    }
+  },
+  "AdminDashboard": {
+    "title": "Tableau de Bord Admin",
+    "subtitle": "Performances du salon et gestion du personnel",
+    "stats": {
+      "daily": "Total Quotidien",
+      "weekly": "Total Hebdomadaire",
+      "monthly": "Total Mensuel",
+      "allTime": "Total Global",
+      "barbers": "Barbiers Actifs"
+    },
+    "subtitles": {
+      "daily": "Pour {date}{filtered}",
+      "filtered": " (Filtré)",
+      "weekly": "Semaine complète de la date sélectionnée",
+      "monthly": "Mois complet de la date sélectionnée",
+      "allTime": "Depuis le début",
+      "barbers": "Personnel inscrit"
+    }
+  },
+  "BarberManager": {
+    "title": "Barbiers",
+    "add": "Ajouter",
+    "close": "Fermer",
+    "createNew": "Créer un Nouveau Barbier",
+    "namePlaceholder": "Nom",
+    "emailPlaceholder": "E-mail",
+    "passwordPlaceholder": "Mot de passe",
+    "createAccount": "Créer le Compte",
+    "editTitle": "Modifier le Barbier",
+    "newPasswordLabel": "Nouveau mot de passe (laisser vide pour conserver l'actuel)",
+    "cancel": "Annuler",
+    "saveChanges": "Enregistrer les Modifications",
+    "inactive": "Inactif",
+    "total": "Total",
+    "success": {
+      "created": "Compte de barbier créé avec succès !",
+      "updated": "Barbier mis à jour avec succès !",
+      "deleted": "Barbier supprimé avec succès."
+    },
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible et supprimera tous ses enregistrements de revenus."
+  },
+  "GlobalIncomeTable": {
+    "title": "Aperçu des Revenus",
+    "auditSafe": "Audit Sécurisé",
+    "allBarbers": "Tous les Barbiers",
+    "headers": {
+      "barber": "Barbier",
+      "financialState": "État Financier",
+      "auditStatus": "Statut d'Audit",
+      "time": "Heure",
+      "actions": "Actions"
+    },
+    "empty": "Aucun revenu confirmé pour cette date.",
+    "initially": "Initialement:",
+    "status": {
+      "pending": "En attente de {action}",
+      "modified": "Modifié & Approuvé",
+      "original": "Original"
+    },
+    "actions": {
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cet enregistrement pour {name} ? Cette action est irréversible."
+    }
+  },
+  "PendingActions": {
+    "title": "Actions en attente ({count})",
+    "unknown": "Inconnu",
+    "time": {
+      "justNow": "À l'instant",
+      "recent": "Récemment"
+    },
+    "requests": {
+      "deleteRecord": "Demande de suppression d'enregistrement:"
+    },
+    "newNote": "Nouvelle note:",
+    "approve": "Approuver",
+    "reject": "Rejeter"
+  },
+  "BarberDashboard": {
+    "title": "Tableau de Bord",
+    "subtitle": "Gérez vos revenus et performances quotidiens",
+    "selectedCard": {
+      "today": "Total d'Aujourd'hui",
+      "specificDate": "Total pour le {date}",
+      "desc": "Gains de la journée sélectionnée"
+    },
+    "weekCard": {
+      "title": "Hebdomadaire (Période)",
+      "desc": "Total sur sept jours"
+    },
+    "monthCard": {
+      "title": "Mensuel (Période)",
+      "desc": "Total pour le mois en cours"
+    },
+    "recordsTitle": {
+      "today": "Enregistrements d'Aujourd'hui",
+      "specificDate": "Enregistrements du {date}"
+    }
+  },
+  "IncomeList": {
+    "deleteTitle": "Supprimer l'enregistrement ?",
+    "deleteDesc": "Êtes-vous sûr de vouloir supprimer cet enregistrement ? Une demande sera envoyée à l'administrateur pour approbation.",
+    "requestPendingTitle": "Demande en attente",
+    "requestPendingDesc": "Une demande de suppression est déjà en attente pour cet enregistrement. Veuillez patienter pour l'examen par l'administrateur.",
+    "errorTitle": "Erreur",
+    "noRecords": "Aucun enregistrement pour aujourd'hui."
+  },
+  "AddIncomeForm": {
+    "addRecord": "Ajouter",
+    "newIncome": "Nouveau Revenu",
+    "autoSetToday": "Saisi par défaut aujourd'hui",
+    "saleAmount": "Montant (DH)",
+    "quickNote": "Note Rapide",
+    "quickNotePlaceholder": "Coupe de cheveux, Barbe, etc...",
+    "errorTitle": "Erreur",
+    "mustBePositive": "Doit être un nombre positif"
+  },
+  "EditIncomeModal": {
+    "editIncome": "Modifier le revenu",
+    "updateDetails": "Mettre à jour les détails de l'enregistrement",
+    "saleAmount": "Montant (DH)",
+    "quickNote": "Note Rapide",
+    "quickNotePlaceholder": "Coupe de cheveux, Barbe, etc...",
+    "cancel": "Annuler",
+    "saveChanges": "Enregistrer les modifications",
+    "errorTitle": "Erreur",
+    "mustBePositive": "Doit être un nombre positif",
+    "requestPendingTitle": "Demande en attente",
+    "requestPendingDesc": "Une demande est déjà en attente pour cet enregistrement. Veuillez patienter pour l'examen par l'administrateur."
+  },
+  "DailyAnalysis": {
+    "title": "Performance Quotidienne",
+    "last30Days": "30 Derniers Jours",
+    "headers": {
+      "date": "Date",
+      "records": "Enregistrements",
+      "totalAmount": "Montant Total"
+    },
+    "noData": "Aucune donnée historique disponible.",
+    "services": "services"
+  },
+  "ProfileForm": {
+    "back": "Retour au Tableau de Bord",
+    "title": "Paramètres du Profil",
+    "subtitle": "Gérez vos informations publiques et votre avatar",
+    "fullName": "Nom Complet",
+    "namePlaceholder": "Entrez votre nom",
+    "email": "Adresse Email",
+    "preVerified": "Pré-vérifié",
+    "changePassword": "Changer le Mot de Passe",
+    "newPassword": "Nouveau Mot de Passe",
+    "confirmPassword": "Confirmer le Mot de Passe",
+    "saveChanges": "Enregistrer",
+    "saved": "Enregistré !",
+    "passwordsNotMatch": "Les mots de passe ne correspondent pas !",
+    "failedSavePhoto": "Échec de l'enregistrement de la photo de profil : "
+  }
+}

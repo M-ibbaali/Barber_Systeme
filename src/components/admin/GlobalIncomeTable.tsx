@@ -10,12 +10,13 @@ import {
   Edit2,
   Trash2,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import ViewIncomeModal from "./ViewIncomeModal";
 import AdminEditIncomeModal from "./AdminEditIncomeModal";
 import CustomDialog from "../ui/CustomDialog";
+import { useTranslations } from "next-intl";
 
 export default function GlobalIncomeTable({
   incomes,
@@ -39,6 +40,8 @@ export default function GlobalIncomeTable({
   const [editingIncome, setEditingIncome] = useState<any | null>(null);
   const [deletingIncome, setDeletingIncome] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const t = useTranslations("GlobalIncomeTable");
+  const commonT = useTranslations("Common");
 
   const handleFilterChange = (key: string, value: string) => {
     const url = new URL(window.location.href);
@@ -125,12 +128,12 @@ export default function GlobalIncomeTable({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm flex flex-col">
-      <div className="p-4 sm:p-6 border-b border-zinc-200 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-50/50">
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm flex flex-col">
+      <div className="p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-50/50 dark:bg-zinc-800/50">
         <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
-          Income Overview
-          <span className="text-xs font-normal text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-full">
-            Audit Safe
+          {t("title")}
+          <span className="text-xs font-normal text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+            {t("auditSafe")}
           </span>
         </h2>
         <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
@@ -141,7 +144,7 @@ export default function GlobalIncomeTable({
               onChange={(e) => handleFilterChange("barberId", e.target.value)}
               className="bg-transparent text-sm outline-none text-zinc-900 w-full cursor-pointer"
             >
-              <option value="">All Barbers</option>
+              <option value="">{t("allBarbers")}</option>
               {barbers.map((barber) => (
                 <option key={barber.id} value={barber.id}>
                   {barber.name}
@@ -165,22 +168,22 @@ export default function GlobalIncomeTable({
         <div className="min-w-[700px]">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-zinc-50/50 text-zinc-500 text-xs uppercase tracking-wider font-bold border-b border-zinc-100">
-                <th className="px-6 py-4">Barber</th>
-                <th className="px-6 py-4">Financial State</th>
-                <th className="px-6 py-4">Audit Status</th>
-                <th className="px-6 py-4">Time</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+              <tr className="bg-zinc-50/50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 text-xs uppercase tracking-wider font-bold border-b border-zinc-100 dark:border-zinc-800">
+                <th className="px-6 py-4">{t("headers.barber")}</th>
+                <th className="px-6 py-4">{t("headers.financialState")}</th>
+                <th className="px-6 py-4">{t("headers.auditStatus")}</th>
+                <th className="px-6 py-4">{t("headers.time")}</th>
+                <th className="px-6 py-4 text-right">{t("headers.actions")}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-50">
+            <tbody className="divide-y divide-zinc-50 dark:divide-zinc-800">
               {incomes.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
                     className="px-6 py-12 text-center text-zinc-400"
                   >
-                    No confirmed income for this date.
+                    {t("empty")}
                   </td>
                 </tr>
               ) : (
@@ -191,14 +194,14 @@ export default function GlobalIncomeTable({
                   return (
                     <tr
                       key={income.id}
-                      className={`hover:bg-zinc-50 transition-colors ${isPending ? "bg-amber-50/30" : ""}`}
+                      className={`hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors ${isPending ? "bg-amber-50/30 dark:bg-amber-500/10" : ""}`}
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xs font-bold">
+                          <div className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-500 flex items-center justify-center text-xs font-bold">
                             {income.profiles?.name?.charAt(0)}
                           </div>
-                          <span className="font-medium text-sm text-zinc-700">
+                          <span className="font-medium text-sm text-zinc-700 dark:text-zinc-300">
                             {income.profiles?.name}
                           </span>
                         </div>
@@ -207,7 +210,7 @@ export default function GlobalIncomeTable({
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
                             <span
-                              className={`font-bold ${isPending && state.pending?.action_type === "DELETE" ? "line-through text-zinc-400" : "text-zinc-900"}`}
+                              className={`font-bold ${isPending && state.pending?.action_type === "DELETE" ? "line-through text-zinc-400" : "text-zinc-900 dark:text-zinc-100"}`}
                             >
                               {income.amount.toFixed(2)} DH
                             </span>
@@ -224,7 +227,8 @@ export default function GlobalIncomeTable({
                           {state.originalAmount !== null &&
                             state.originalAmount !== income.amount && (
                               <span className="text-[10px] text-zinc-400 uppercase">
-                                Initially: {state.originalAmount.toFixed(2)} DH
+                                {t("initially")}{" "}
+                                {state.originalAmount.toFixed(2)} DH
                               </span>
                             )}
                         </div>
@@ -234,19 +238,21 @@ export default function GlobalIncomeTable({
                           <span
                             className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase animate-pulse ${
                               state.pending?.action_type === "DELETE"
-                                ? "bg-red-100 text-red-600"
-                                : "bg-amber-100 text-amber-600"
+                                ? "bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400"
+                                : "bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400"
                             }`}
                           >
-                            Pending {state.pending?.action_type}
+                            {t("status.pending", {
+                              action: state.pending?.action_type,
+                            })}
                           </span>
                         ) : state.isEdited ? (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-600 uppercase">
-                            Modified & Approved
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 uppercase">
+                            {t("status.modified")}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-600 uppercase">
-                            Original
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">
+                            {t("status.original")}
                           </span>
                         )}
                       </td>
@@ -286,22 +292,21 @@ export default function GlobalIncomeTable({
                             <>
                               <button
                                 onClick={() => setViewingIncome(income)}
-                                className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
-                                title="View Details"
+                                className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setEditingIncome(income)}
-                                className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
-                                title="Edit Record"
+                                className="p-2 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                title={commonT("edit")}
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setDeletingIncome(income)}
-                                className="p-2 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 transition-colors"
-                                title="Delete Record"
+                                className="p-2 rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                                title={commonT("delete")}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -314,7 +319,7 @@ export default function GlobalIncomeTable({
                                 onClick={() =>
                                   handleAction(state.pending, "APPROVED")
                                 }
-                                className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 transition-all border border-emerald-200 shadow-sm flex items-center gap-1"
+                                className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-500/30 transition-all border border-emerald-200 dark:border-emerald-500/30 shadow-sm flex items-center gap-1"
                                 title="Approve Change"
                               >
                                 {processingId === state.pending?.id ? (
@@ -323,7 +328,7 @@ export default function GlobalIncomeTable({
                                   <Check className="w-4 h-4" />
                                 )}
                                 <span className="text-[10px] font-bold">
-                                  Approve
+                                  {t("actions.approve")}
                                 </span>
                               </button>
                               <button
@@ -331,8 +336,8 @@ export default function GlobalIncomeTable({
                                 onClick={() =>
                                   handleAction(state.pending, "REJECTED")
                                 }
-                                className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all border border-red-100"
-                                title="Reject Change"
+                                className="p-1.5 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all border border-red-100 dark:border-red-500/20"
+                                title={t("actions.reject")}
                               >
                                 <X className="w-4 h-4" />
                               </button>
@@ -366,10 +371,12 @@ export default function GlobalIncomeTable({
         isOpen={!!deletingIncome}
         onClose={() => setDeletingIncome(null)}
         onConfirm={handleDelete}
-        title="Delete Record"
-        description={`Are you sure you want to delete this record for ${deletingIncome?.profiles?.name}? This action cannot be undone.`}
+        title={commonT("delete")}
+        description={t("actions.deleteConfirm", {
+          name: deletingIncome?.profiles?.name,
+        })}
         type="danger"
-        confirmText="Delete"
+        confirmText={commonT("delete")}
         isLoading={isDeleting}
       />
     </div>
