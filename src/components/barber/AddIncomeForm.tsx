@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import CustomDialog from "../ui/CustomDialog";
-import { Plus, X, Loader2 } from "lucide-react";
+import { Plus, X, Loader2, Camera, Image as ImageIcon, Trash2 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,7 @@ const incomeSchema = z.object({
       "Must be a positive number",
     ),
   note: z.string().optional(),
+  image_url: z.string().optional(),
 });
 
 type IncomeFormValues = z.infer<typeof incomeSchema>;
@@ -45,6 +46,9 @@ export default function AddIncomeForm({
     description: "",
     type: "info",
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const {
     register,
@@ -57,14 +61,55 @@ export default function AddIncomeForm({
 
   // We should enforce validation inside onSubmit, but since we use Zod we cannot dynamically translate Zod error messages easily here unless we pass the custom message over, or just check errors.amount in JSX.
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
   const onSubmit = async (data: IncomeFormValues) => {
     if (!barberId) return;
     setLoading(true);
+
+    let imageUrl = null;
+    if (imageFile) {
+      setIsUploading(true);
+      const fileExt = imageFile.name.split(".").pop();
+      const fileName = `${barberId}-${Date.now()}.${fileExt}`;
+      const filePath = `income-photos/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("income-photos")
+        .upload(filePath, imageFile);
+
+      if (uploadError) {
+        console.error("Error uploading image:", uploadError);
+        // We continue even if upload fails as per requirement: "insert of the incom passed dont required to this input"
+      } else {
+        const { data: { publicUrl } } = supabase.storage
+          .from("income-photos")
+          .getPublicUrl(filePath);
+        imageUrl = publicUrl;
+      }
+      setIsUploading(false);
+    }
 
     const { error } = await supabase.from("incomes").insert({
       barber_id: barberId,
       amount: Number(data.amount),
       note: data.note || null,
+      image_url: imageUrl,
     });
 
     setLoading(false);
@@ -136,6 +181,67 @@ export default function AddIncomeForm({
                       : errors.amount.message}
                   </p>
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-black text-zinc-400 uppercase tracking-widest flex justify-between items-center">
+                  {t("photoOptional")}
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="text-red-500 hover:text-red-600 flex items-center gap-1 transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span className="text-[10px]">{t("removePhoto")}</span>
+                    </button>
+                  )}
+                </label>
+                
+                <div className="relative group">
+                  {imagePreview ? (
+                    <div className="relative w-full aspect-video rounded-2xl overflow-hidden border-2 border-amber-500/20 shadow-inner bg-zinc-50 dark:bg-zinc-800">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                        <label className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white cursor-pointer hover:bg-white/30 transition-all active:scale-90">
+                          <Camera className="w-6 h-6" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={handleImageChange}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full aspect-video bg-zinc-50 dark:bg-zinc-800 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-2xl cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700/50 hover:border-amber-500/50 transition-all group">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <div className="p-4 bg-white dark:bg-zinc-900 rounded-2xl shadow-sm group-hover:scale-110 transition-transform duration-300 mb-3 border border-zinc-100 dark:border-zinc-800">
+                          <ImageIcon className="w-8 h-8 text-zinc-400 group-hover:text-amber-500 transition-colors" />
+                        </div>
+                        <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400">
+                          {t("attachPhoto")}
+                        </p>
+                        <p className="text-[10px] text-zinc-400 mt-1 uppercase tracking-tight">
+                          PNG, JPG up to 10MB
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">

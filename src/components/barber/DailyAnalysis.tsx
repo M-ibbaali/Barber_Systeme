@@ -1,10 +1,12 @@
 "use client";
 
 import { Calendar, TrendingUp } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatMoroccoDay } from "@/lib/utils/date";
 
 export default function DailyAnalysis({ incomes }: { incomes: any[] }) {
   const t = useTranslations("DailyAnalysis");
+  const locale = useLocale();
 
   // Group incomes by date and calculate totals
   const dailyTotals = incomes.reduce((acc: any, curr) => {
@@ -72,11 +74,7 @@ export default function DailyAnalysis({ incomes }: { incomes: any[] }) {
                         <Calendar className="w-4 h-4" />
                       </div>
                       <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
-                        {new Date(day.date).toLocaleDateString("en-US", {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {formatMoroccoDay(day.date, locale)}
                       </span>
                     </div>
                   </td>

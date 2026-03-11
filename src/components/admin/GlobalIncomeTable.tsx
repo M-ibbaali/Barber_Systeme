@@ -9,6 +9,7 @@ import {
   Eye,
   Edit2,
   Trash2,
+  Camera,
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { useState } from "react";
@@ -17,6 +18,7 @@ import ViewIncomeModal from "./ViewIncomeModal";
 import AdminEditIncomeModal from "./AdminEditIncomeModal";
 import CustomDialog from "../ui/CustomDialog";
 import { useTranslations } from "next-intl";
+import { formatMoroccoTime, parseDatabaseTime } from "@/lib/utils/date";
 
 export default function GlobalIncomeTable({
   incomes,
@@ -223,6 +225,9 @@ export default function GlobalIncomeTable({
                                   </span>
                                 </>
                               )}
+                            {(isPending ? state.pending?.new_values?.image_url : income.image_url) && (
+                              <Camera className="w-3.5 h-3.5 text-amber-500 animate-pulse ml-1" />
+                            )}
                           </div>
                           {state.originalAmount !== null &&
                             state.originalAmount !== income.amount && (
@@ -259,21 +264,7 @@ export default function GlobalIncomeTable({
                       <td className="px-6 py-4 text-zinc-500 text-sm whitespace-nowrap">
                         <div className="flex flex-col">
                           <span>
-                            {(() => {
-                              const [hours, minutes, seconds] = income.time
-                                .split(":")
-                                .map(Number);
-                              const date = new Date();
-                              date.setHours(hours + 1);
-                              date.setMinutes(minutes);
-                              date.setSeconds(seconds || 0);
-                              return date.toLocaleTimeString("en-US", {
-                                hour12: false,
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                second: "2-digit",
-                              });
-                            })()}
+                            {parseDatabaseTime(income.time)}
                           </span>
                           {(isPending
                             ? state.pending?.new_note

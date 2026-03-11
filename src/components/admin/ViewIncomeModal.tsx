@@ -1,6 +1,8 @@
 "use client";
 
-import { X, Calendar, Clock, DollarSign, User, FileText } from "lucide-react";
+import { X, Calendar, Clock, DollarSign, User, FileText, Camera } from "lucide-react";
+import { formatMoroccoFull, parseDatabaseTime } from "@/lib/utils/date";
+import { useLocale } from "next-intl";
 
 export default function ViewIncomeModal({
   income,
@@ -9,6 +11,7 @@ export default function ViewIncomeModal({
   income: any;
   onClose: () => void;
 }) {
+  const locale = useLocale();
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white border border-zinc-200 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
@@ -55,21 +58,31 @@ export default function ViewIncomeModal({
               <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-1">
                 <Clock className="w-3 h-3" /> Time
               </label>
-              <p className="text-xl font-black text-zinc-900">{income.time}</p>
+              <p className="text-xl font-black text-zinc-900">{parseDatabaseTime(income.time)}</p>
             </div>
           </div>
+
+          {income.image_url && (
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-1">
+                <Camera className="w-3 h-3" /> Client Photo
+              </label>
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-zinc-100 shadow-sm bg-zinc-50">
+                <img
+                  src={income.image_url}
+                  alt="Client"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-1">
               <Calendar className="w-3 h-3" /> Created At
             </label>
             <p className="text-sm font-bold text-zinc-700 bg-zinc-50 px-3 py-2 rounded-xl border border-zinc-100">
-              {new Date(income.created_at).toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {formatMoroccoFull(income.created_at, locale)}
             </p>
           </div>
 

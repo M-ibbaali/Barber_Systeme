@@ -7,6 +7,7 @@ import { useState } from "react";
 import EditIncomeModal from "./EditIncomeModal";
 import CustomDialog from "../ui/CustomDialog";
 import { useTranslations } from "next-intl";
+import { parseDatabaseTime } from "@/lib/utils/date";
 
 export default function IncomeList({
   initialIncomes,
@@ -90,20 +91,6 @@ export default function IncomeList({
     }
   };
 
-  const formatTime = (timeStr: string) => {
-    const [hours, minutes, seconds] = timeStr.split(":").map(Number);
-    const date = new Date();
-    date.setHours(hours + 1);
-    date.setMinutes(minutes);
-    date.setSeconds(seconds || 0);
-    return date.toLocaleTimeString("en-US", {
-      hour12: false,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  };
-
   if (initialIncomes.length === 0) {
     return (
       <div className="p-12 text-center">
@@ -128,7 +115,7 @@ export default function IncomeList({
                   </span>
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">
                     <Clock className="w-3 h-3" />
-                    {formatTime(income.time)}
+                    {parseDatabaseTime(income.time)}
                   </span>
                 </div>
                 {income.note && (

@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS incomes (
   time TIME DEFAULT CURRENT_TIME NOT NULL,
   note TEXT,
   is_deleted BOOLEAN DEFAULT FALSE, -- SOFT DELETE for non-repudiation
+  image_url TEXT, -- Optional photo of the client
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
 );

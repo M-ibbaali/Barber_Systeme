@@ -92,6 +92,7 @@
     "actions": {
       "approve": "Approuver",
       "reject": "Rejeter",
+      "viewPhoto": "Voir la photo",
       "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cet enregistrement pour {name} ? Cette action est irréversible."
     }
   },
@@ -146,7 +147,11 @@
     "quickNote": "Note Rapide",
     "quickNotePlaceholder": "Coupe de cheveux, Barbe, etc...",
     "errorTitle": "Erreur",
-    "mustBePositive": "Doit être un nombre positif"
+    "mustBePositive": "Doit être un nombre positif",
+    "attachPhoto": "Joindre une photo",
+    "photoOptional": "Photo (Optionnel)",
+    "capturing": "Capture...",
+    "removePhoto": "Supprimer la photo"
   },
   "EditIncomeModal": {
     "editIncome": "Modifier le revenu",

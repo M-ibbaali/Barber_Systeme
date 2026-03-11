@@ -4,7 +4,8 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Check, X, AlertCircle, Loader2, Clock } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatMoroccoFull } from "@/lib/utils/date";
 
 export default function PendingActions({
   requests,
@@ -17,6 +18,7 @@ export default function PendingActions({
   const supabase = createClient();
   const [processingId, setProcessingId] = useState<string | null>(null);
   const t = useTranslations("PendingActions");
+  const locale = useLocale();
 
   const getBarberName = (id: string) =>
     barbers.find((b) => b.id === id)?.name || t("unknown");
@@ -101,29 +103,7 @@ export default function PendingActions({
                     {(() => {
                       const rawDate = req.created_at || req.requested_at;
                       if (!rawDate) return t("time.justNow");
-
-                      try {
-                        const date = new Date(
-                          new Date(rawDate).getTime() + 60 * 60 * 1000,
-                        );
-                        if (isNaN(date.getTime())) return t("time.recent");
-
-                        return (
-                          <>
-                            {date.toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                            })}{" "}
-                            •{" "}
-                            {date.toLocaleTimeString("en-US", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </>
-                        );
-                      } catch (e) {
-                        return t("time.justNow");
-                      }
+                      return formatMoroccoFull(rawDate, locale);
                     })()}
                   </span>
                 </div>

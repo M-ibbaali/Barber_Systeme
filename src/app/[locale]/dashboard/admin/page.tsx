@@ -7,6 +7,7 @@ import { Users, TrendingUp, DollarSign } from "lucide-react";
 import { redirect } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { getMoroccoToday, formatMoroccoDay } from "@/lib/utils/date";
 
 export default async function AdminDashboard(props: {
   params: Promise<{ locale: string }>;
@@ -25,8 +26,7 @@ export default async function AdminDashboard(props: {
     redirect({ href: "/login", locale });
   }
 
-  const filterDate =
-    searchParams.date || new Date().toISOString().split("T")[0];
+  const filterDate = searchParams.date || getMoroccoToday();
   const filterBarberId = searchParams.barberId;
 
   const { data: barbers } = await supabase
@@ -146,7 +146,7 @@ export default async function AdminDashboard(props: {
           title={t("stats.daily")}
           value={`${stats.daily.toFixed(2)} DH`}
           subtitle={t("subtitles.daily", {
-            date: filterDate,
+            date: formatMoroccoDay(filterDate, locale),
             filtered: filterBarberId ? t("subtitles.filtered") : "",
           })}
           icon={<TrendingUp className="w-6 h-6 text-green-500" />}

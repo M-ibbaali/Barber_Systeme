@@ -11,6 +11,7 @@ import {
   Clock,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { getMoroccoToday, formatMoroccoDay } from "@/lib/utils/date";
 
 export default async function BarberDashboard(props: {
   params: Promise<{ locale: string }>;
@@ -29,7 +30,7 @@ export default async function BarberDashboard(props: {
     redirect({ href: "/login", locale });
   }
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getMoroccoToday();
   const filterDate = searchParams.date || today;
   const selectedDate = new Date(filterDate);
 
@@ -136,7 +137,9 @@ export default async function BarberDashboard(props: {
             <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium uppercase tracking-wider">
               {filterDate === today
                 ? t("selectedCard.today")
-                : t("selectedCard.specificDate", { date: filterDate })}
+                : t("selectedCard.specificDate", { 
+                    date: formatMoroccoDay(filterDate, locale) 
+                  })}
             </p>
             <p className="text-3xl font-bold mt-2 text-amber-600 dark:text-amber-500">
               {stats.selected.toFixed(2)} DH
@@ -200,7 +203,9 @@ export default async function BarberDashboard(props: {
               <Clock className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
               {filterDate === today
                 ? t("recordsTitle.today")
-                : t("recordsTitle.specificDate", { date: filterDate })}
+                : t("recordsTitle.specificDate", { 
+                    date: formatMoroccoDay(filterDate, locale) 
+                  })}
             </h2>
             <BarberDatePicker defaultValue={filterDate} />
           </div>

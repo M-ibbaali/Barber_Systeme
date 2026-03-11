@@ -92,6 +92,7 @@
     "actions": {
       "approve": "موافقة",
       "reject": "رفض",
+      "viewPhoto": "عرض الصورة",
       "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا السجل لـ {name}؟ هذا الإجراء لا يمكن التراجع عنه."
     }
   },
@@ -146,7 +147,11 @@
     "quickNote": "ملاحظة سريعة",
     "quickNotePlaceholder": "قص شعر، لحية، إلخ...",
     "errorTitle": "خطأ",
-    "mustBePositive": "يجب أن يكون رقماً موجباً"
+    "mustBePositive": "يجب أن يكون رقماً موجباً",
+    "attachPhoto": "إرفاق صورة",
+    "photoOptional": "صورة (اختياري)",
+    "capturing": "جاري الالتقاط...",
+    "removePhoto": "حذف الصورة"
   },
   "EditIncomeModal": {
     "editIncome": "تعديل الدخل",
