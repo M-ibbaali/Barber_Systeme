@@ -17,6 +17,7 @@ export default async function DashboardLayout({
 
   if (!user) {
     redirect({ href: "/login", locale });
+    return null;
   }
 
   const { data: profile } = await supabase
