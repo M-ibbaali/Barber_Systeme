@@ -130,7 +130,7 @@ export default function GlobalIncomeTable({
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm flex flex-col">
       <div className="p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-50/50 dark:bg-zinc-800/50">
-        <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
+        <h2 className="text-xl font-bold text-zinc-900 flex items-center gap-2 dark:text-white">
           {t("title")}
           <span className="text-xs font-normal text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
             {t("auditSafe")}
